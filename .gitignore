@@ -1,0 +1,5 @@
+*.kdev4
+*.pro
+.directory
+*.user
+TODO
