@@ -19,6 +19,7 @@
  */
 
 #include <QApplication>
+#include <QQmlApplicationEngine>
 
 int main(int argc, char* argv[])
 {
@@ -27,7 +28,10 @@ int main(int argc, char* argv[])
 	a.setOrganizationName("dtt");
 	a.setOrganizationDomain("https://github.com/shashwatdixit124/dtt");
 	a.setApplicationVersion("1.0");
-	
+
+	QQmlApplicationEngine engine;
+	engine.load(QUrl("qrc:/resources/Main.qml"));
+
 	a.exec();
 	return 0;
-} 
+}

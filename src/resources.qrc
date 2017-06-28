@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>resources/Main.qml</file>
+        <file>resources/linea-arrows-10.ttf</file>
+        <file>resources/linea-basic-elaboration-10.ttf</file>
+    </qresource>
+</RCC>
