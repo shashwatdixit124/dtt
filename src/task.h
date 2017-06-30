@@ -32,7 +32,8 @@ public:
 	enum Status {
 		PENDING,
 		WIP,
-		COMPLETED
+		COMPLETED,
+		INVALID
 	};
 
 	quint16 id() const;
@@ -58,5 +59,7 @@ protected:
 	Status m_status;
 
 };
+
+Q_DECLARE_METATYPE(Task);
 
 #endif

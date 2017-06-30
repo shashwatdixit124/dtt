@@ -26,10 +26,20 @@
 #include <QObject>
 #include <QMap>
 #include <QAbstractListModel>
+#include <QQmlEngine>
+#include <QJSEngine>
+
+class DBManager;
+class PendingTasks;
+class WipTasks;
+class CompletedTasks;
 
 class TaskManager : public QObject
 {
 	Q_OBJECT
+	Q_PROPERTY(QAbstractListModel* pendingTasks READ pendingTasks CONSTANT);
+	Q_PROPERTY(QAbstractListModel* wipTasks READ wipTasks CONSTANT);
+	Q_PROPERTY(QAbstractListModel* completedTasks READ completedTasks CONSTANT);
 public:
 	explicit TaskManager(QObject* parent = nullptr);
 	~TaskManager();
@@ -38,6 +48,16 @@ public:
 	QAbstractListModel* wipTasks();
 	QAbstractListModel* completedTasks();
 
+	Q_INVOKABLE void addTask(QString,QString,quint16,QString);
+	Q_INVOKABLE void stepTask(quint16);
+	Q_INVOKABLE void deleteTask(quint16);
+
+	static QObject* taskmanager_singleton(QQmlEngine *engine, QJSEngine *scriptEngine);
+private:
+	DBManager* m_db;
+	PendingTasks* m_pending;
+	WipTasks* m_wip;
+	CompletedTasks* m_completed;
 };
 
 #endif

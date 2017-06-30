@@ -20,26 +20,71 @@
 
 #include "taskmanager.h"
 #include "task.h"
+#include "dbmanager.h"
+#include "pendingtasks.h"
+#include "wiptasks.h"
+#include "completedtasks.h"
 
-TaskManager::TaskManager(QObject* parent) : QObject(parent)
+#include <QObject>
+
+TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager(this))
 {
+	m_pending = new PendingTasks(m_db,this);
+	m_wip = new WipTasks(m_db,this);
+	m_completed = new CompletedTasks(m_db,this);
 }
 
 TaskManager::~TaskManager()
 {
-}
-
-QAbstractListModel * TaskManager::completedTasks()
-{
-	return nullptr;
+	m_pending->deleteLater();
+	m_wip->deleteLater();
+	m_completed->deleteLater();
+	m_db->deleteLater();
 }
 
 QAbstractListModel * TaskManager::pendingTasks()
 {
-	return nullptr;
+	return m_pending;
 }
 
 QAbstractListModel * TaskManager::wipTasks()
 {
-	return nullptr;
+	return m_wip;
+}
+
+QAbstractListModel * TaskManager::completedTasks()
+{
+	return m_completed;
+}
+
+void TaskManager::addTask(QString title, QString desc, quint16 score, QString tag)
+{
+	if(title.isEmpty())
+		return;
+	Task t;
+	t.setTitle(title);
+	t.setDescription(desc);
+	t.setScore(score);
+	t.setTag(tag);
+	t.setStatus(Task::PENDING);
+	m_db->addTask(t);
+}
+
+void TaskManager::stepTask(quint16 id)
+{
+	m_db->stepTask(id);
+}
+
+void  TaskManager::deleteTask(quint16 id)
+{
+	m_db->deleteTask(id);
+}
+
+QObject * TaskManager::taskmanager_singleton(QQmlEngine* engine, QJSEngine* scriptEngine)
+{
+	Q_UNUSED(engine)
+	Q_UNUSED(scriptEngine)
+
+	TaskManager *manager = new TaskManager();
+	return manager;
 }
