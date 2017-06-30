@@ -18,6 +18,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
+#include "taskmanager.h"
+
 #include <QApplication>
 #include <QQmlApplicationEngine>
 
@@ -28,6 +30,8 @@ int main(int argc, char* argv[])
 	a.setOrganizationName("dtt");
 	a.setOrganizationDomain("https://github.com/shashwatdixit124/dtt");
 	a.setApplicationVersion("1.0");
+
+	qmlRegisterSingletonType<TaskManager>("api.dtt",1,0,"Dtt",TaskManager::taskmanager_singleton);
 
 	QQmlApplicationEngine engine;
 	engine.load(QUrl("qrc:/resources/Main.qml"));
