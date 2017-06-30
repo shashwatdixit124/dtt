@@ -6,6 +6,6 @@ set(QT_MIN_VERSION "5.8.0")
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED Core Widgets Quick QuickControls2)
+find_package(Qt5 ${QT_MIN_VERSION} CONFIG REQUIRED Core Widgets Quick QuickControls2 Sql)
 
 add_subdirectory(src)
