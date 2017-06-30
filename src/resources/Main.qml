@@ -235,7 +235,6 @@ ApplicationWindow { id: root
 						shadow: false
 						anchors.top: parent.top
 						onClicked:{
-							console.log("stepped called for task "+_T_id)
 							Dtt.stepTask(_T_id)
 						}
 					}
@@ -248,7 +247,6 @@ ApplicationWindow { id: root
 						shadow: false
 						anchors.bottom: parent.bottom
 						onClicked:{
-							console.log("delete called for task "+_T_id)
 							Dtt.deleteTask(_T_id)
 						}
 					}

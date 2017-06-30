@@ -76,6 +76,7 @@ void DBManager::addTask(Task t)
 		return;
 	}
 	t.setId(++m_rowid);
+	m_tasks.insert(m_rowid,t);
 	emit createdTask(t);
 }
 
