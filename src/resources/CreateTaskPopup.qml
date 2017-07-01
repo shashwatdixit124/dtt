@@ -68,7 +68,7 @@ Popup { id: item
 			TextField { id: taskTitle
 				height: 40
 				width: parent.width
-				font.pixelSize: 16
+				font.pixelSize: activeFocus ? 16 : 14
 				placeholderText: qsTr(" Title")
 				background: Rectangle {
 					implicitHeight: 40
@@ -81,7 +81,7 @@ Popup { id: item
 			TextField { id: taskDescription
 				height: 40
 				width: parent.width
-				font.pixelSize: 16
+				font.pixelSize: activeFocus ? 16 : 14
 				placeholderText: qsTr(" Description")
 				background: Rectangle {
 					implicitHeight: 40
@@ -94,7 +94,7 @@ Popup { id: item
 			TextField { id: taskScore
 				height: 40
 				width: parent.width
-				font.pixelSize: 16
+				font.pixelSize: activeFocus ? 16 : 14
 				placeholderText: qsTr(" Score between 0 and 10")
 				validator: IntValidator{bottom: 0; top: 10;}
 				background: Rectangle {
@@ -108,7 +108,7 @@ Popup { id: item
 			TextField { id: taskTag
 				height: 40
 				width: parent.width
-				font.pixelSize: 16
+				font.pixelSize: activeFocus ? 16 : 14
 				placeholderText: qsTr(" Tag")
 				background: Rectangle {
 					implicitHeight: 40
@@ -118,16 +118,35 @@ Popup { id: item
 					border.width: parent.activeFocus ? 2 : 0
 				}
 			}
-			IPCButton { id: createBtn
-				shadow: false
-				radius: 0
+			Row {
+				spacing: 20
 				height: 40
-				icon: qsTr("\uf0c7")
-				text: qsTr("Save")
-				onClicked:{
-					if(taskTitle.text != "")
-					{
-						Dtt.addTask(taskTitle.text,taskDescription.text,taskScore.text,taskTag.text)
+				width: parent.width
+				IPCButton { id: createBtn
+					shadow: false
+					radius: 0
+					height: 40
+					icon: qsTr("\uf067")
+					text: qsTr("Create")
+					onClicked: {
+						if(taskTitle.text != "")
+						{
+							Dtt.addTask(taskTitle.text,taskDescription.text,taskScore.text,taskTag.text)
+							taskTitle.text = ""
+							taskDescription.text = ""
+							taskScore.text = ""
+							taskTag.text = ""
+							close()
+						}
+					}
+				}
+				IPCButton { id: cancelBtn
+					shadow: false
+					radius: 0
+					height: 40
+					icon: qsTr("\uf00d")
+					text: qsTr("Cancel")
+					onClicked:{
 						taskTitle.text = ""
 						taskDescription.text = ""
 						taskScore.text = ""

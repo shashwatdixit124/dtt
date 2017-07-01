@@ -33,7 +33,7 @@ ApplicationWindow { id: root
 	y:(Screen.height-640)/2
 	flags: Qt.FramelessWindowHint
 
-	FontLoader { id: linea_basic_elaboration; source: "qrc:/resources/linea-basic-elaboration-10.ttf" }
+	FontLoader { id: fontawesome; source: "qrc:/resources/fontawesome-webfont.ttf" }
 
 	property string textColor: "#f6f6f6"
 
@@ -66,6 +66,7 @@ ApplicationWindow { id: root
 				radius: 0
 				shadow: false
 				active: titleBar.activeTab == 0
+				activeColor: "#fff"
 				width: 200
 				onClicked: {
 					titleBar.activeTab = 0
@@ -74,33 +75,23 @@ ApplicationWindow { id: root
 			}
 
 			IPCButton {
-				text: qsTr("GRAPH")
+				text: qsTr("PROGRESS")
 				radius: 0
 				shadow: false
 				active: titleBar.activeTab == 1
+				activeColor: "#fff"
 				width: 200
 				onClicked: {
 					titleBar.activeTab = 1
 				}
 			}
 
-			Item {
+			IPCButton {
 				height: parent.height
-				width: height
-
-				Text {
-					color: root.textColor
-					font.pixelSize: 24
-					font.family: linea_basic_elaboration.name
-					anchors.centerIn: parent
-					text: qsTr("\ue02d")
-
-					MouseArea {
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-						onClicked: createTaskPopup.show()
-					}
-				}
+				text: qsTr("\uf067  ADD")
+				radius: 0
+				shadow: false
+				onClicked: createTaskPopup.show()
 			}
 		}
 	}
@@ -122,34 +113,91 @@ ApplicationWindow { id: root
 			anchors.margins: 20
 			spacing: 20
 
-			Item { id: pendingTaskViewer
+			Column { id: pendingTaskViewer
 				width: 300
 				height: parent.height
-				ListView { id:pendingTasks
-					anchors.fill: parent
-					model: Dtt.pendingTasks
-					spacing: 20
-					delegate: taskCard
+				Item {
+					width: parent.width
+					height: 60
+					IPCButton {
+						radius: 0
+						shadow: false
+						active: true
+						width: parent.width
+						height: parent.height - 20
+						anchors.centerIn: parent
+						text: qsTr("Pending Tasks")
+					}
+
+				}
+				Item {
+					width: parent.width
+					height: parent.height - 60
+					clip: true
+					ListView { id:pendingTasks
+						anchors.fill: parent
+						model: Dtt.pendingTasks
+						spacing: 20
+						delegate: taskCard
+					}
 				}
 			}
-			Item { id: wipTaskViewer
+			Column { id: wipTaskViewer
 				width: 300
 				height: parent.height
-				ListView { id:wipTasks
-					anchors.fill: parent
-					model: Dtt.wipTasks
-					spacing: 20
-					delegate: taskCard
+				Item {
+					width: parent.width
+					height: 60
+					IPCButton {
+						radius: 0
+						shadow: false
+						active: true
+						width: parent.width
+						height: parent.height - 20
+						anchors.centerIn: parent
+						text: qsTr("WIP Tasks")
+					}
+
+				}
+				Item {
+					width: parent.width
+					height: parent.height - 60
+					clip: true
+					ListView { id:wipTasks
+						anchors.fill: parent
+						model: Dtt.wipTasks
+						spacing: 20
+						delegate: taskCard
+					}
 				}
 			}
-			Item { id: completedTaskViewer
+			Column { id: completedTaskViewer
 				width: 300
 				height: parent.height
-				ListView { id:completedTasks
-					anchors.fill: parent
-					model: Dtt.completedTasks
-					spacing: 20
-					delegate: taskCard
+				Item {
+					width: parent.width
+					height: 60
+					IPCButton {
+						radius: 0
+						shadow: false
+						active: true
+						width: parent.width
+						height: parent.height - 20
+						anchors.centerIn: parent
+						text: qsTr("Completed Tasks")
+					}
+
+				}
+				Item {
+					width: parent.width
+					height: parent.height - 60
+					clip: true
+					ListView { id:completedTasks
+						anchors.fill: parent
+						model: Dtt.completedTasks
+						spacing: 20
+						delegate: taskCard
+					}
 				}
 			}
 		}
@@ -178,7 +226,7 @@ ApplicationWindow { id: root
 				id: yAxis
 				min: 0
 				max: Dtt.maxYValue
-				tickCount: 10
+				tickCount: (max % 10) == 0 ? 11 : 11
 			}
 
 			Connections{
@@ -366,11 +414,12 @@ ApplicationWindow { id: root
 				height: 80
 				anchors.right: parent.right
 				anchors.top: menu.bottom
-				Rectangle { id: menuBox
+				Item { id: menuBox
 					anchors.fill: parent
 					IPCButton {
+						icon: qsTr("\uf061")
 						text: qsTr("step")
-						color: "transparent"
+						color: "#f4f4f4"
 						textColor: "#555"
 						width: parent.width
 						radius: 0
@@ -381,8 +430,9 @@ ApplicationWindow { id: root
 						}
 					}
 					IPCButton {
+						icon: qsTr("\uf1f8")
 						text: qsTr("delete")
-						color: "transparent"
+						color: "#f4f4f4"
 						textColor: "#555"
 						width: parent.width
 						radius: 0
@@ -392,16 +442,6 @@ ApplicationWindow { id: root
 							Dtt.deleteTask(_T_id)
 						}
 					}
-				}
-				DropShadow { id: dropMenuBox
-					anchors.fill: menuBox
-					source: menuBox
-					horizontalOffset: 0
-					verticalOffset: 0
-					radius: 8
-					samples: 17
-					color: "#30000000"
-					transparentBorder: true
 				}
 			}
 		}
