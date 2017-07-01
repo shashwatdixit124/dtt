@@ -22,6 +22,8 @@
 #define TASK_H
 
 #include <QObject>
+#include <QDate>
+#include <QDebug>
 
 class Task
 {
@@ -41,6 +43,8 @@ public:
 	QString description() const;
 	quint16 score() const;
 	QString tag() const;
+	QDate createdOn() const;
+	QDate updatedOn() const;
 	Status status() const;
 
 	void setId(quint16);
@@ -48,7 +52,11 @@ public:
 	void setDescription(QString);
 	void setScore(quint16);
 	void setTag(QString);
+	void setCreatedOn(QDate);
+	void setUpdatedOn(QDate);
 	void setStatus(Status);
+
+	void print();
 
 protected:
 	quint16 m_id;
@@ -56,10 +64,12 @@ protected:
 	QString m_description;
 	quint16 m_score;
 	QString m_tag;
+	QDate m_createdOn;
+	QDate m_updatedOn;
 	Status m_status;
 
 };
 
-Q_DECLARE_METATYPE(Task);
+Q_DECLARE_METATYPE(Task)
 
 #endif

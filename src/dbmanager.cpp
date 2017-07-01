@@ -62,13 +62,17 @@ void DBManager::addTask(Task t)
 {
 	if(!isDbOpen)
 		return;
+	t.setCreatedOn(QDate::currentDate());
+	t.setUpdatedOn(QDate());
 	QSqlQuery query(*m_db);
-	QString q = "INSERT INTO Tasks Values (:title , :description , :score , :tag , :status)" ;
+	QString q = "INSERT INTO Tasks Values (:title , :description , :score , :tag , :createdon , :updatedon , :status)" ;
 	query.prepare(q);
 	query.bindValue(":title",t.title());
 	query.bindValue(":description",t.description());
 	query.bindValue(":score",t.score());
 	query.bindValue(":tag",t.tag());
+	query.bindValue(":createdon",t.createdOn().toString("yyyy-MM-dd"));
+	query.bindValue(":updatedon",t.updatedOn().toString("yyyy-MM-dd"));
 	query.bindValue(":status",t.status());
 	if(!query.exec()) {
 		qDebug() << this << "cannot create task" ;
@@ -94,10 +98,11 @@ void DBManager::stepTask(quint16 id)
 		t.setStatus(Task::COMPLETED);
 	}
 	QSqlQuery query(*m_db);
-	
-	QString q = "UPDATE Tasks SET status = :status WHERE rowid = :id" ;
+
+	QString q = "UPDATE Tasks SET updatedon = :updatedon , status = :status WHERE rowid = :id" ;
 	query.prepare(q);
 	query.bindValue(":id",t.id());
+	query.bindValue(":updatedon",QDate::currentDate().toString("yyyy-MM-dd"));
 	query.bindValue(":status",t.status());
 	if(!query.exec())
 	{
@@ -105,6 +110,7 @@ void DBManager::stepTask(quint16 id)
 		qDebug() << "ERROR : " << m_db->lastError().text();
 		return;
 	}
+	t.setUpdatedOn(QDate::currentDate());
 	m_tasks[t.id()] = t;
 	emit stepped(t);
 }
@@ -168,7 +174,7 @@ bool DBManager::createDatabase()
 	}
 	
 	QSqlQuery query(db);
-	QString q = "CREATE TABLE Tasks (title VARCHAR(50) NOT NULL, description TEXT, score INTEGER NOT NULL, tag VARCHAR(15), status INTEGER)";
+	QString q = "CREATE TABLE Tasks (title VARCHAR(50) NOT NULL, description TEXT, score INTEGER NOT NULL, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER)";
 	
 	if(!query.exec(q))
 	{
@@ -199,7 +205,9 @@ bool DBManager::loadDatabase()
 		t.setDescription(query.value(2).toString());
 		t.setScore(query.value(3).toInt());
 		t.setTag(query.value(4).toString());
-		t.setStatus(Task::Status(query.value(5).toInt()));
+		t.setCreatedOn(query.value(5).toDate());
+		t.setUpdatedOn(query.value(6).toDate());
+		t.setStatus(Task::Status(query.value(7).toInt()));
 		m_tasks.insert(t.id(),t);
 	}
 	m_rowid = row;

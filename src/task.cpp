@@ -20,7 +20,10 @@
 
 #include "task.h"
 
-Task::Task() : m_status(INVALID)
+#include <QObject>
+#include <QDate>
+
+Task::Task() : m_status(INVALID) , m_createdOn(QDate::currentDate()) , m_updatedOn(QDate())
 {
 }
 
@@ -53,6 +56,16 @@ QString Task::tag() const
 	return m_tag;
 }
 
+QDate Task::createdOn() const
+{
+	return m_createdOn;
+}
+
+QDate Task::updatedOn() const
+{
+	return m_updatedOn;
+}
+
 Task::Status Task::status() const
 {
 	return m_status;
@@ -83,7 +96,29 @@ void Task::setTag(QString tag)
 	m_tag = tag;
 }
 
+void Task::setCreatedOn(QDate date)
+{
+	m_createdOn = date;
+}
+
+void Task::setUpdatedOn(QDate date)
+{
+	m_updatedOn = date;
+}
+
 void Task::setStatus(Task::Status status)
 {
 	m_status = status;
+}
+
+void Task::print()
+{
+	qDebug() << "___ Task No " << id() << " ___" ;
+	qDebug() << " Title : " << title();
+	qDebug() << " Description : " << description();
+	qDebug() << " Score : " << score();
+	qDebug() << " Tag : " << tag();
+	qDebug() << " Created On : " << createdOn();
+	qDebug() << " Updated On : " << updatedOn();
+	qDebug() << " Status : " << status();
 }
