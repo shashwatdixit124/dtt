@@ -262,7 +262,7 @@ ApplicationWindow { id: root
 			border.color: _T_status == 0 ? "#ccc" : _T_status == 1 ? "#2980b9" : "#27ae60"
 			radius: 3
 			width: parent.width
-			height: titleBlk.height + descBlk.height + scoreandtagBlk.height + 40
+			height: titleBlk.height + descBlk.height + scoreandtagBlk.height + createdonBlk.height +/* updatedonBlk.height*/ + 40
 			Item { id: titleBlk
 				width: parent.width - 40
 				height: title.text != "" ? title.implicitHeight + 10 : 0
@@ -294,10 +294,24 @@ ApplicationWindow { id: root
 					onClicked: menu.open = !menu.open
 				}
 			}
+			Item { id: createdonBlk
+				width: parent.width
+				height: createdon.implicitHeight + 10
+				anchors.top: titleBlk.bottom
+				Text { id: createdon
+					text: _T_status == 2 ? qsTr(_T_createdon + " - " + _T_updatedon) : _T_createdon
+					width: parent.width - 20
+					font.pixelSize: 12
+					font.weight: Font.Light
+					color: "#555"
+					anchors.centerIn: parent
+					wrapMode: Text.WordWrap
+				}
+			}
 			Item { id: descBlk
 				width: parent.width
 				height: desc.text != "" ? desc.implicitHeight + 10 : 0
-				anchors.top: titleBlk.bottom
+				anchors.top: createdonBlk.bottom
 				anchors.topMargin: 10
 				Text { id: desc
 					text: _T_description

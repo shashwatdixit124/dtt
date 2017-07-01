@@ -38,6 +38,8 @@ public:
 		DESCRIPTION,
 		SCORE,
 		TAG,
+		CREATEDON,
+		UPDATEDON,
 		STATUS
 	};
 

@@ -58,9 +58,13 @@ QVariant CompletedTasks::data(const QModelIndex& index, int role) const
 		return t.score();
 	else if(role == TAG)
 		return t.tag();
+	else if(role == CREATEDON)
+		return t.createdOn().toString("MMMM dd , yyyy");
+	else if(role == UPDATEDON)
+		return t.updatedOn().toString("MMMM dd , yyyy");
 	else if(role == STATUS)
 		return t.status();
-	return QVariant();	
+	return QVariant();
 }
 
 int CompletedTasks::rowCount(const QModelIndex& parent) const
@@ -102,6 +106,8 @@ QHash<int, QByteArray> CompletedTasks::roleNames() const
 	roles[DESCRIPTION] = "_T_description";
 	roles[SCORE] = "_T_score";
 	roles[TAG] = "_T_tag";
+	roles[CREATEDON] = "_T_createdon";
+	roles[UPDATEDON] = "_T_updatedon";
 	roles[STATUS] = "_T_status";
 	return roles;
 }
