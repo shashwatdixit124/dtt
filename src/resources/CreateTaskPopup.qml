@@ -95,7 +95,8 @@ Popup { id: item
 				height: 40
 				width: parent.width
 				font.pixelSize: 16
-				placeholderText: qsTr(" Score")
+				placeholderText: qsTr(" Score between 0 and 10")
+				validator: IntValidator{bottom: 0; top: 10;}
 				background: Rectangle {
 					implicitHeight: 40
 					implicitWidth: 400
