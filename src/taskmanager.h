@@ -25,6 +25,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QList>
 #include <QAbstractListModel>
 #include <QQmlEngine>
 #include <QJSEngine>
@@ -37,9 +38,13 @@ class CompletedTasks;
 class TaskManager : public QObject
 {
 	Q_OBJECT
-	Q_PROPERTY(QAbstractListModel* pendingTasks READ pendingTasks CONSTANT);
-	Q_PROPERTY(QAbstractListModel* wipTasks READ wipTasks CONSTANT);
-	Q_PROPERTY(QAbstractListModel* completedTasks READ completedTasks CONSTANT);
+	Q_PROPERTY(QAbstractListModel* pendingTasks READ pendingTasks CONSTANT)
+	Q_PROPERTY(QAbstractListModel* wipTasks READ wipTasks CONSTANT)
+	Q_PROPERTY(QAbstractListModel* completedTasks READ completedTasks CONSTANT)
+	Q_PROPERTY(int maxYValue READ maxYValue CONSTANT)
+	Q_PROPERTY(QList<int> pending7Day READ pending7Day CONSTANT)
+	Q_PROPERTY(QList<int> wip7Day READ wip7Day CONSTANT)
+	Q_PROPERTY(QList<int> completed7Day READ completed7Day CONSTANT)
 public:
 	explicit TaskManager(QObject* parent = nullptr);
 	~TaskManager();
@@ -48,16 +53,33 @@ public:
 	QAbstractListModel* wipTasks();
 	QAbstractListModel* completedTasks();
 
+	int maxYValue();
+	QList<int> pending7Day();
+	QList<int> wip7Day();
+	QList<int> completed7Day();
+
 	Q_INVOKABLE void addTask(QString,QString,quint16,QString);
 	Q_INVOKABLE void stepTask(quint16);
 	Q_INVOKABLE void deleteTask(quint16);
 
 	static QObject* taskmanager_singleton(QQmlEngine *engine, QJSEngine *scriptEngine);
+
+Q_SIGNALS:
+	void updateGraph();
+
+protected Q_SLOTS:
+	void load7day();
+
 private:
 	DBManager* m_db;
 	PendingTasks* m_pending;
 	WipTasks* m_wip;
 	CompletedTasks* m_completed;
+	int m_maxYValue;
+	QList<int> m_pending7Day;
+	QList<int> m_wip7Day;
+	QList<int> m_completed7Day;
+
 };
 
 #endif
