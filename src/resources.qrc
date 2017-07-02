@@ -5,8 +5,6 @@
         <file>resources/CreateTaskPopup.qml</file>
         <file>resources/IPCButton.qml</file>
         <file>resources/StatusBar.qml</file>
-        <file>resources/linea-arrows-10.ttf</file>
-        <file>resources/linea-basic-elaboration-10.ttf</file>
         <file>resources/fontawesome-webfont.ttf</file>
         <file>resources/triangle-32.png</file>
     </qresource>
