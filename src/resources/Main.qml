@@ -215,6 +215,40 @@ ApplicationWindow { id: root
 			anchors.fill: parent
 			antialiasing: true
 
+			function createGraph()
+			{
+				removeAllSeries();
+				yAxis.max = Dtt.maxYValue
+
+				createSeries(LineSeries,"Pending",xAxis,yAxis);
+				createSeries(LineSeries,"WIP",xAxis,yAxis);
+				createSeries(LineSeries,"Completed",xAxis,yAxis);
+
+				series("Pending").append(0,Dtt.pending7Day[6])
+				series("Pending").append(1,Dtt.pending7Day[5])
+				series("Pending").append(2,Dtt.pending7Day[4])
+				series("Pending").append(3,Dtt.pending7Day[3])
+				series("Pending").append(4,Dtt.pending7Day[2])
+				series("Pending").append(5,Dtt.pending7Day[1])
+				series("Pending").append(6,Dtt.pending7Day[0])
+
+				series("WIP").append(0,Dtt.wip7Day[6])
+				series("WIP").append(1,Dtt.wip7Day[5])
+				series("WIP").append(2,Dtt.wip7Day[4])
+				series("WIP").append(3,Dtt.wip7Day[3])
+				series("WIP").append(4,Dtt.wip7Day[2])
+				series("WIP").append(5,Dtt.wip7Day[1])
+				series("WIP").append(6,Dtt.wip7Day[0])
+
+				series("Completed").append(0,Dtt.completed7Day[6])
+				series("Completed").append(1,Dtt.completed7Day[5])
+				series("Completed").append(2,Dtt.completed7Day[4])
+				series("Completed").append(3,Dtt.completed7Day[3])
+				series("Completed").append(4,Dtt.completed7Day[2])
+				series("Completed").append(5,Dtt.completed7Day[1])
+				series("Completed").append(6,Dtt.completed7Day[0])
+			}
+
 			ValueAxis {
 				id: xAxis
 				min: 0
@@ -231,76 +265,10 @@ ApplicationWindow { id: root
 
 			Connections{
 				target: Dtt
-				onUpdateGraph: {
-					graphChart.removeAllSeries();
-					yAxis.max = Dtt.maxYValue
-
-					graphChart.createSeries(LineSeries,"Pending",xAxis,yAxis);
-					graphChart.createSeries(LineSeries,"WIP",xAxis,yAxis);
-					graphChart.createSeries(LineSeries,"Completed",xAxis,yAxis);
-
-					graphChart.series("Pending").append(0,Dtt.pending7Day[6])
-					graphChart.series("Pending").append(1,Dtt.pending7Day[5])
-					graphChart.series("Pending").append(2,Dtt.pending7Day[4])
-					graphChart.series("Pending").append(3,Dtt.pending7Day[3])
-					graphChart.series("Pending").append(4,Dtt.pending7Day[2])
-					graphChart.series("Pending").append(5,Dtt.pending7Day[1])
-					graphChart.series("Pending").append(6,Dtt.pending7Day[0])
-
-					graphChart.series("WIP").append(0,Dtt.wip7Day[6])
-					graphChart.series("WIP").append(1,Dtt.wip7Day[5])
-					graphChart.series("WIP").append(2,Dtt.wip7Day[4])
-					graphChart.series("WIP").append(3,Dtt.wip7Day[3])
-					graphChart.series("WIP").append(4,Dtt.wip7Day[2])
-					graphChart.series("WIP").append(5,Dtt.wip7Day[1])
-					graphChart.series("WIP").append(6,Dtt.wip7Day[0])
-
-					graphChart.series("Completed").append(0,Dtt.completed7Day[6])
-					graphChart.series("Completed").append(1,Dtt.completed7Day[5])
-					graphChart.series("Completed").append(2,Dtt.completed7Day[4])
-					graphChart.series("Completed").append(3,Dtt.completed7Day[3])
-					graphChart.series("Completed").append(4,Dtt.completed7Day[2])
-					graphChart.series("Completed").append(5,Dtt.completed7Day[1])
-					graphChart.series("Completed").append(6,Dtt.completed7Day[0])
-				}
+				onUpdateGraph: graphChart.createGraph()
 			}
 
-			LineSeries {
-				name: "Pending"
-				axisX: xAxis
-				axisY: yAxis
-				XYPoint { id: pending6 ; x: 0; y: Dtt.pending7Day[6] }
-				XYPoint { id: pending5 ; x: 1; y: Dtt.pending7Day[5] }
-				XYPoint { id: pending4 ; x: 2; y: Dtt.pending7Day[4] }
-				XYPoint { id: pending3 ; x: 3; y: Dtt.pending7Day[3] }
-				XYPoint { id: pending2 ; x: 4; y: Dtt.pending7Day[2] }
-				XYPoint { id: pending1 ; x: 5; y: Dtt.pending7Day[1] }
-				XYPoint { id: pending0 ; x: 6; y: Dtt.pending7Day[0] }
-			}
-			LineSeries {
-				name: "WIP"
-				axisX: xAxis
-				axisY: yAxis
-				XYPoint { id: wip6 ; x: 0; y: Dtt.wip7Day[6] }
-				XYPoint { id: wip5 ; x: 1; y: Dtt.wip7Day[5] }
-				XYPoint { id: wip4 ; x: 2; y: Dtt.wip7Day[4] }
-				XYPoint { id: wip3 ; x: 3; y: Dtt.wip7Day[3] }
-				XYPoint { id: wip2 ; x: 4; y: Dtt.wip7Day[2] }
-				XYPoint { id: wip1 ; x: 5; y: Dtt.wip7Day[1] }
-				XYPoint { id: wip0 ; x: 6; y: Dtt.wip7Day[0] }
-			}
-			LineSeries {
-				name: "Completed"
-				axisX: xAxis
-				axisY: yAxis
-				XYPoint { id: completed6 ; x: 0; y: Dtt.completed7Day[6] }
-				XYPoint { id: completed5 ; x: 1; y: Dtt.completed7Day[5] }
-				XYPoint { id: completed4 ; x: 2; y: Dtt.completed7Day[4] }
-				XYPoint { id: completed3 ; x: 3; y: Dtt.completed7Day[3] }
-				XYPoint { id: completed2 ; x: 4; y: Dtt.completed7Day[2] }
-				XYPoint { id: completed1 ; x: 5; y: Dtt.completed7Day[1] }
-				XYPoint { id: completed0 ; x: 6; y: Dtt.completed7Day[0] }
-			}
+			Component.onCompleted: createGraph()
 		}
 
 	}
