@@ -27,9 +27,11 @@ import api.dtt 1.0
 
 ApplicationWindow { id: root
 	visible: true
-	minimumWidth: 980
-	minimumHeight: 640
-	x:(Screen.width-920)/2
+	minimumWidth: 720
+	minimumHeight: 480
+	width: 980
+	height: 640
+	x:(Screen.width-980)/2
 	y:(Screen.height-640)/2
 	flags: Qt.FramelessWindowHint
 
@@ -85,55 +87,82 @@ ApplicationWindow { id: root
 					titleBar.activeTab = 1
 				}
 			}
-
-			IPCButton {
-				height: parent.height
-				text: qsTr("\uf067  ADD")
-				radius: 0
-				shadow: false
-				onClicked: createTaskPopup.show()
-			}
 		}
 	}
 
 
-	Flickable { id: taskViewGrid
+	Item { id: taskViewGrid
 		anchors.left: parent.left
 		anchors.right: parent.right
 		anchors.top: titleBar.bottom
 		anchors.bottom: statusBar.top
-		contentWidth: 940
-		clip: true
+		property int cardWidth : 300
+		property int widthFactor : (cardWidth/100 - 3)*2
+		property int titleFontSize : 16 + widthFactor
+		property int descFontSize : 14 + widthFactor
+		property int dateFontSize : 12 + widthFactor
 		visible: titleBar.activeTab == 0
 
-		ScrollBar.horizontal: ScrollBar {}
+		Item {
+			anchors.top: parent.top
+			height: 80
 
-		Row {
-			anchors.fill: parent
-			anchors.margins: 20
-			spacing: 20
-
-			Column { id: pendingTaskViewer
-				width: 300
-				height: parent.height
-				Item {
-					width: parent.width
-					height: 60
-					IPCButton {
-						radius: 0
-						shadow: false
-						active: true
-						width: parent.width
-						height: parent.height - 20
-						anchors.centerIn: parent
-						text: qsTr("Pending Tasks")
-					}
-
+			Row {
+				height: parent.height - 40
+				width: parent.width - 40
+				anchors.centerIn: parent
+				spacing: 30
+				IPCButton {
+					height: parent.height
+					width: 150
+					text: qsTr("\uf067  Add Task")
+					radius: width / 2
+					shadow: false
+					onClicked: createTaskPopup.show()
 				}
-				Item {
-					width: parent.width
-					height: parent.height - 60
-					clip: true
+				IPCButton {
+					height: parent.height
+					width: 150
+					text: qsTr("\uf00e  Zoom In")
+					radius: width / 2
+					shadow: false
+					onClicked: {
+						if(taskViewGrid.cardWidth < 700)
+							taskViewGrid.cardWidth += 100
+					}
+				}
+				IPCButton {
+					height: parent.height
+					width: 150
+					text: qsTr("\uf010  Zoom Out")
+					radius: width / 2
+					shadow: false
+					onClicked: {
+						if(taskViewGrid.cardWidth > 300)
+							taskViewGrid.cardWidth -= 100
+					}
+				}
+			}
+
+		}
+
+		Flickable {
+			contentWidth: parent.cardWidth*3 + 40 + 40
+			clip: true
+			width: parent.width
+			height: parent.height - 80
+			anchors.bottom: parent.bottom
+
+			ScrollBar.horizontal: ScrollBar {}
+
+			Row {
+				anchors.fill: parent
+				anchors.margins: spacing
+				spacing: 20
+
+				Item { id: pendingTaskViewer
+					width: taskViewGrid.cardWidth
+					height: parent.height
 					ListView { id:pendingTasks
 						anchors.fill: parent
 						model: Dtt.pendingTasks
@@ -141,28 +170,9 @@ ApplicationWindow { id: root
 						delegate: taskCard
 					}
 				}
-			}
-			Column { id: wipTaskViewer
-				width: 300
-				height: parent.height
-				Item {
-					width: parent.width
-					height: 60
-					IPCButton {
-						radius: 0
-						shadow: false
-						active: true
-						width: parent.width
-						height: parent.height - 20
-						anchors.centerIn: parent
-						text: qsTr("WIP Tasks")
-					}
-
-				}
-				Item {
-					width: parent.width
-					height: parent.height - 60
-					clip: true
+				Item { id: wipTaskViewer
+					width: taskViewGrid.cardWidth
+					height: parent.height
 					ListView { id:wipTasks
 						anchors.fill: parent
 						model: Dtt.wipTasks
@@ -170,28 +180,9 @@ ApplicationWindow { id: root
 						delegate: taskCard
 					}
 				}
-			}
-			Column { id: completedTaskViewer
-				width: 300
-				height: parent.height
-				Item {
-					width: parent.width
-					height: 60
-					IPCButton {
-						radius: 0
-						shadow: false
-						active: true
-						width: parent.width
-						height: parent.height - 20
-						anchors.centerIn: parent
-						text: qsTr("Completed Tasks")
-					}
-
-				}
-				Item {
-					width: parent.width
-					height: parent.height - 60
-					clip: true
+				Item { id: completedTaskViewer
+					width: taskViewGrid.cardWidth
+					height: parent.height
 					ListView { id:completedTasks
 						anchors.fill: parent
 						model: Dtt.completedTasks
@@ -201,6 +192,7 @@ ApplicationWindow { id: root
 				}
 			}
 		}
+
 	}
 
 	Item { id: graph
@@ -287,7 +279,7 @@ ApplicationWindow { id: root
 				Text { id: title
 					text: _T_title
 					width: parent.width - 20
-					font.pixelSize: 16
+					font.pixelSize: taskViewGrid.titleFontSize
 					anchors.centerIn: parent
 					wrapMode: Text.WordWrap
 				}
@@ -300,7 +292,7 @@ ApplicationWindow { id: root
 				height: 40
 				width: 40
 				Text {
-					font.pixelSize: 16
+					font.pixelSize: taskViewGrid.titleFontSize
 					text: qsTr("\uf0c9")
 					anchors.centerIn: parent
 				}
@@ -317,7 +309,7 @@ ApplicationWindow { id: root
 				Text { id: createdon
 					text: _T_status == 2 ? qsTr(_T_createdon + " - " + _T_updatedon) : _T_createdon
 					width: parent.width - 20
-					font.pixelSize: 12
+					font.pixelSize: taskViewGrid.dateFontSize
 					font.weight: Font.Light
 					color: "#555"
 					anchors.centerIn: parent
@@ -332,7 +324,7 @@ ApplicationWindow { id: root
 				Text { id: desc
 					text: _T_description
 					width: parent.width - 20
-					font.pixelSize: 14
+					font.pixelSize: taskViewGrid.descFontSize
 					font.weight: Font.Light
 					anchors.centerIn: parent
 					wrapMode: Text.WordWrap
@@ -345,17 +337,17 @@ ApplicationWindow { id: root
 				anchors.topMargin: 10
 				Row {
 					width: parent.width - 20
-					height: scoreBlk.height
+					height: 20
 					anchors.centerIn: parent
 					spacing: 10
 					Rectangle { id: scoreBlk
 						color: "#F9BF3B"
 						width: score.implicitWidth + 20
-						height: 20
+						height: parent.height
 						Text { id: score
 							text: _T_score
 							width: parent.width - 20
-							font.pixelSize: 14
+							font.pixelSize: taskViewGrid.descFontSize
 							font.weight: Font.Light
 							wrapMode: Text.WordWrap
 							anchors.centerIn: parent
@@ -364,11 +356,11 @@ ApplicationWindow { id: root
 					Rectangle { id: tagBlk
 						color: "#e7e7e7"
 						width: tag.text != "" ? tag.implicitWidth + 20 : 0
-						height: 20
+						height: parent.height
 						Text { id: tag
 							text: _T_tag != "" ? qsTr("\uf02b  ") + _T_tag : ""
 							width: parent.width - 20
-							font.pixelSize: 14
+							font.pixelSize: taskViewGrid.descFontSize
 							anchors.centerIn: parent
 							font.weight: Font.Light
 							wrapMode: Text.WordWrap
@@ -378,18 +370,21 @@ ApplicationWindow { id: root
 			}
 			Item {
 				visible: menu.open
-				width: 100
-				height: 80
+				width: 100 + taskViewGrid.widthFactor*20
+				height: 80 + taskViewGrid.widthFactor*10
 				anchors.right: parent.right
 				anchors.top: menu.bottom
 				Item { id: menuBox
 					anchors.fill: parent
 					IPCButton {
 						icon: qsTr("\uf061")
-						text: qsTr("step")
+						text: qsTr("STEP")
+						textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
+						iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
 						color: "#f4f4f4"
 						textColor: "#555"
 						width: parent.width
+						height: parent.height / 2
 						radius: 0
 						shadow: false
 						anchors.top: parent.top
@@ -399,10 +394,13 @@ ApplicationWindow { id: root
 					}
 					IPCButton {
 						icon: qsTr("\uf1f8")
-						text: qsTr("delete")
+						text: qsTr("DELETE")
+						textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
+						iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
 						color: "#f4f4f4"
 						textColor: "#555"
 						width: parent.width
+						height: parent.height / 2
 						radius: 0
 						shadow: false
 						anchors.bottom: parent.bottom
