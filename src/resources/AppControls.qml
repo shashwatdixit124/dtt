@@ -64,7 +64,8 @@ Item { id: root
 
 			MouseArea { id: minimizeRegion
 				cursorShape: Qt.PointingHandCursor
-				anchors.fill: minimizeBtn
+				anchors.fill: parent
+				anchors.margins: 5
 				onPressed: root.minimized()
 			}
 		}
@@ -84,7 +85,8 @@ Item { id: root
 
 			MouseArea { id:closeRegion
 				cursorShape: Qt.PointingHandCursor
-				anchors.fill: closeBtn
+				anchors.fill: parent
+				anchors.margins: 5
 				onPressed: root.close()
 			}
 		}
