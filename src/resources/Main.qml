@@ -216,35 +216,38 @@ ApplicationWindow { id: root
 				createSeries(LineSeries,"WIP",xAxis,yAxis);
 				createSeries(LineSeries,"Completed",xAxis,yAxis);
 
-				series("Pending").append(0,Dtt.pending7Day[6])
-				series("Pending").append(1,Dtt.pending7Day[5])
-				series("Pending").append(2,Dtt.pending7Day[4])
-				series("Pending").append(3,Dtt.pending7Day[3])
-				series("Pending").append(4,Dtt.pending7Day[2])
-				series("Pending").append(5,Dtt.pending7Day[1])
-				series("Pending").append(6,Dtt.pending7Day[0])
+				series("Pending").color = "#aaa"
+				series("Pending").append(1,Dtt.pending7Day[6])
+				series("Pending").append(2,Dtt.pending7Day[5])
+				series("Pending").append(3,Dtt.pending7Day[4])
+				series("Pending").append(4,Dtt.pending7Day[3])
+				series("Pending").append(5,Dtt.pending7Day[2])
+				series("Pending").append(6,Dtt.pending7Day[1])
+				series("Pending").append(7,Dtt.pending7Day[0])
 
-				series("WIP").append(0,Dtt.wip7Day[6])
-				series("WIP").append(1,Dtt.wip7Day[5])
-				series("WIP").append(2,Dtt.wip7Day[4])
-				series("WIP").append(3,Dtt.wip7Day[3])
-				series("WIP").append(4,Dtt.wip7Day[2])
-				series("WIP").append(5,Dtt.wip7Day[1])
-				series("WIP").append(6,Dtt.wip7Day[0])
+				series("WIP").color = "#2980b9"
+				series("WIP").append(1,Dtt.wip7Day[6])
+				series("WIP").append(2,Dtt.wip7Day[5])
+				series("WIP").append(3,Dtt.wip7Day[4])
+				series("WIP").append(4,Dtt.wip7Day[3])
+				series("WIP").append(5,Dtt.wip7Day[2])
+				series("WIP").append(6,Dtt.wip7Day[1])
+				series("WIP").append(7,Dtt.wip7Day[0])
 
-				series("Completed").append(0,Dtt.completed7Day[6])
-				series("Completed").append(1,Dtt.completed7Day[5])
-				series("Completed").append(2,Dtt.completed7Day[4])
-				series("Completed").append(3,Dtt.completed7Day[3])
-				series("Completed").append(4,Dtt.completed7Day[2])
-				series("Completed").append(5,Dtt.completed7Day[1])
-				series("Completed").append(6,Dtt.completed7Day[0])
+				series("Completed").color = "#27ae60"
+				series("Completed").append(1,Dtt.completed7Day[6])
+				series("Completed").append(2,Dtt.completed7Day[5])
+				series("Completed").append(3,Dtt.completed7Day[4])
+				series("Completed").append(4,Dtt.completed7Day[3])
+				series("Completed").append(5,Dtt.completed7Day[2])
+				series("Completed").append(6,Dtt.completed7Day[1])
+				series("Completed").append(7,Dtt.completed7Day[0])
 			}
 
 			ValueAxis {
 				id: xAxis
-				min: 0
-				max: 6
+				min: 1
+				max: 7
 				tickCount: 7
 			}
 
