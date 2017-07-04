@@ -310,7 +310,7 @@ ApplicationWindow { id: root
 				height: createdon.implicitHeight + 10
 				anchors.top: titleBlk.bottom
 				Text { id: createdon
-					text: _T_status == 2 ? qsTr(_T_createdon + " - " + _T_updatedon) : _T_createdon
+					text: _T_status == 2 ? qsTr(_T_createdon + " - " + _T_updatedon) : _T_status == 1 ? _T_updatedon : _T_createdon
 					width: parent.width - 20
 					font.pixelSize: taskViewGrid.dateFontSize
 					font.weight: Font.Light
