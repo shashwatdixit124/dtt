@@ -31,7 +31,7 @@ CompletedTasks::CompletedTasks(DBManager* db, QObject* parent) : QAbstractListMo
 	foreach(Task t,m_db->tasks())
 	{
 		if(t.status() == Task::COMPLETED)
-			m_tasks.push_back(t);
+			m_tasks.push_front(t);
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
@@ -77,8 +77,8 @@ void CompletedTasks::updateAdd(Task t)
 {
 	if(t.status() != Task::COMPLETED)
 		return;
-	beginInsertRows(QModelIndex(), rowCount() , rowCount());
-	m_tasks.push_back(t);
+	beginInsertRows(QModelIndex(), 0 , 0);
+	m_tasks.push_front(t);
 	endInsertRows();
 }
 
