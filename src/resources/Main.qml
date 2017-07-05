@@ -217,6 +217,7 @@ ApplicationWindow { id: root
 				createSeries(LineSeries,"Completed",xAxis,yAxis);
 
 				series("Pending").color = "#aaa"
+				series("Pending").pointsVisible = true
 				series("Pending").append(1,Dtt.pending7Day[6])
 				series("Pending").append(2,Dtt.pending7Day[5])
 				series("Pending").append(3,Dtt.pending7Day[4])
@@ -226,6 +227,7 @@ ApplicationWindow { id: root
 				series("Pending").append(7,Dtt.pending7Day[0])
 
 				series("WIP").color = "#2980b9"
+				series("WIP").pointsVisible = true
 				series("WIP").append(1,Dtt.wip7Day[6])
 				series("WIP").append(2,Dtt.wip7Day[5])
 				series("WIP").append(3,Dtt.wip7Day[4])
@@ -235,6 +237,7 @@ ApplicationWindow { id: root
 				series("WIP").append(7,Dtt.wip7Day[0])
 
 				series("Completed").color = "#27ae60"
+				series("Completed").pointsVisible = true
 				series("Completed").append(1,Dtt.completed7Day[6])
 				series("Completed").append(2,Dtt.completed7Day[5])
 				series("Completed").append(3,Dtt.completed7Day[4])
@@ -242,6 +245,7 @@ ApplicationWindow { id: root
 				series("Completed").append(5,Dtt.completed7Day[2])
 				series("Completed").append(6,Dtt.completed7Day[1])
 				series("Completed").append(7,Dtt.completed7Day[0])
+
 			}
 
 			ValueAxis {
