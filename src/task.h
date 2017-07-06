@@ -28,6 +28,8 @@
 #include <QDebug>
 #include <QList>
 
+class SubTaskList;
+
 class Task
 {
 public:
@@ -49,7 +51,7 @@ public:
 	QDate createdOn() const;
 	QDate updatedOn() const;
 	Status status() const;
-	QList<SubTask> subtasks() const;
+	SubTaskList* subTasks() const;
 
 	void setId(quint16);
 	void setTitle(QString);
@@ -73,7 +75,7 @@ protected:
 	QDate m_createdOn;
 	QDate m_updatedOn;
 	Status m_status;
-	QList<SubTask> m_subtasks;
+	SubTaskList* m_list;
 
 };
 

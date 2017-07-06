@@ -20,16 +20,18 @@
 
 #include "task.h"
 #include "subtask.h"
+#include "subtasklist.h"
 
 #include <QObject>
 #include <QDate>
 
-Task::Task() : m_status(INVALID) , m_createdOn(QDate::currentDate()) , m_updatedOn(QDate())
+Task::Task() : m_status(INVALID) , m_createdOn(QDate::currentDate()) , m_updatedOn(QDate()) , m_list(new SubTaskList())
 {
 }
 
 Task::~Task()
 {
+	m_list->deleteLater();
 }
 
 quint16 Task::id() const
@@ -70,6 +72,11 @@ QDate Task::updatedOn() const
 Task::Status Task::status() const
 {
 	return m_status;
+}
+
+SubTaskList* Task::subTasks() const
+{
+	return m_list;
 }
 
 void Task::setId(quint16 id)
@@ -114,7 +121,7 @@ void Task::setStatus(Task::Status status)
 
 void Task::addSubTask(SubTask st)
 {
-	m_subtasks.push_back(st);
+	m_list->add(st);
 }
 
 void Task::removeSubTask(SubTask st)
@@ -122,13 +129,7 @@ void Task::removeSubTask(SubTask st)
 	if(st.parentId() != id())
 		return;
 
-	QList<SubTask> temp = subtasks();
-	for(int i=0; i<temp.count() ; i++) {
-		if(st.id() == temp.value(i).id() && temp.value(i).status() != SubTask::INVALID) {
-			m_subtasks.removeAt(i);
-			break;
-		}
-	}
+	m_list->remove(st);
 }
 
 void Task::print()
@@ -145,13 +146,9 @@ void Task::print()
 		qDebug() << " No SubTasks Listed " ;
 	else {
 		qDebug() << " SubTasks " ;
-		foreach (SubTask st, m_subtasks) {
-			qDebug() << st.description() ;
+		for(int i = 0 ; i<m_list->rowCount() ; i++)
+		{
+			qDebug() << m_list->data(i,SubTaskList::DESCRIPTION).toString();
 		}
 	}
-}
-
-QList<SubTask> Task::subtasks() const
-{
-	return m_subtasks;
 }

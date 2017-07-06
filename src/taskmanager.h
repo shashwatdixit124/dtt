@@ -41,6 +41,8 @@ class TaskManager : public QObject
 	Q_PROPERTY(QAbstractListModel* pendingTasks READ pendingTasks CONSTANT)
 	Q_PROPERTY(QAbstractListModel* wipTasks READ wipTasks CONSTANT)
 	Q_PROPERTY(QAbstractListModel* completedTasks READ completedTasks CONSTANT)
+	Q_PROPERTY(quint16 currentTask READ currentTask WRITE setCurrentTask NOTIFY currentTaskChanged)
+	Q_PROPERTY(QAbstractListModel* subTasks READ subTasks CONSTANT)
 	Q_PROPERTY(int maxYValue READ maxYValue CONSTANT)
 	Q_PROPERTY(QList<int> pending7Day READ pending7Day CONSTANT)
 	Q_PROPERTY(QList<int> wip7Day READ wip7Day CONSTANT)
@@ -52,6 +54,10 @@ public:
 	QAbstractListModel* pendingTasks();
 	QAbstractListModel* wipTasks();
 	QAbstractListModel* completedTasks();
+	QAbstractListModel* subTasks();
+
+	quint16 currentTask();
+	void setCurrentTask(quint16);
 
 	int maxYValue();
 	QList<int> pending7Day();
@@ -66,6 +72,7 @@ public:
 
 Q_SIGNALS:
 	void updateGraph();
+	void currentTaskChanged();
 
 protected Q_SLOTS:
 	void load7day();
@@ -75,6 +82,7 @@ private:
 	PendingTasks* m_pending;
 	WipTasks* m_wip;
 	CompletedTasks* m_completed;
+	quint16 m_currTask;
 	int m_maxYValue;
 	QList<int> m_pending7Day;
 	QList<int> m_wip7Day;

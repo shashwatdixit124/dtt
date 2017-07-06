@@ -29,7 +29,7 @@
 #include <QDate>
 #include <QDebug>
 
-TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager(this))
+TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager(this)) , m_currTask(0)
 {
 	m_pending = new PendingTasks(m_db,this);
 	m_wip = new WipTasks(m_db,this);
@@ -52,6 +52,26 @@ TaskManager::~TaskManager()
 	m_wip->deleteLater();
 	m_completed->deleteLater();
 	m_db->deleteLater();
+}
+
+quint16 TaskManager::currentTask()
+{
+	return m_currTask;
+}
+
+void TaskManager::setCurrentTask(quint16 id)
+{
+	m_currTask = id;
+	emit currentTaskChanged();
+}
+
+QAbstractListModel* TaskManager::subTasks()
+{
+	Task t = m_db->task(m_currTask);
+	if(t.status() == Task::INVALID)
+		return;
+
+	return t.subTasks();
 }
 
 QAbstractListModel * TaskManager::pendingTasks()
