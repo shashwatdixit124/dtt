@@ -124,7 +124,7 @@ void Task::removeSubTask(SubTask st)
 
 	QList<SubTask> temp = subtasks();
 	for(int i=0; i<temp.count() ; i++) {
-		if(st.id() == temp.value(i) && temp.value(i).status() != SubTask::INVALID) {
+		if(st.id() == temp.value(i).id() && temp.value(i).status() != SubTask::INVALID) {
 			m_subtasks.removeAt(i);
 			break;
 		}

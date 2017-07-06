@@ -40,14 +40,14 @@ public:
 	quint16 id() const;
 	QString description() const;
 	QDate createdOn() const;
-	QDate completedOn() const;
+	QDate updatedOn() const;
 	quint16 parentId() const;
 	Status status() const;
 
 	void setId(quint16 id);
 	void setDescription(QString desc);
 	void setCreatedOn(QDate date);
-	void setCompletedOn(QDate date);
+	void setUpdatedOn(QDate date);
 	void setParentId(quint16 parentid);
 	void setStatus(Status);
 
@@ -55,7 +55,7 @@ private:
 	quint16 m_id;
 	QString m_description;
 	QDate m_createdOn;
-	QDate m_completedOn;
+	QDate m_updatedOn;
 	quint16 m_parentId;
 	Status m_status;
 

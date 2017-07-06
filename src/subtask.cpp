@@ -44,9 +44,9 @@ QDate SubTask::createdOn() const
 	return m_createdOn;
 }
 
-QDate SubTask::completedOn() const
+QDate SubTask::updatedOn() const
 {
-	return m_completedOn;
+	return m_updatedOn;
 }
 
 quint16 SubTask::parentId() const
@@ -74,9 +74,9 @@ void SubTask::setCreatedOn(QDate date)
 	m_createdOn = date;
 }
 
-void SubTask::completedOn(QDate date)
+void SubTask::setUpdatedOn(QDate date)
 {
-	m_completedOn = date;
+	m_updatedOn = date;
 }
 
 void SubTask::setParentId(quint16 parentid)

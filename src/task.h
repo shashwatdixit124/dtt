@@ -21,12 +21,12 @@
 #ifndef TASK_H
 #define TASK_H
 
+#include "subtask.h"
+
 #include <QObject>
 #include <QDate>
 #include <QDebug>
 #include <QList>
-
-class SubTask;
 
 class Task
 {

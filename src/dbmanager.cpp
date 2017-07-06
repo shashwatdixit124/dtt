@@ -20,6 +20,7 @@
 
 #include "dbmanager.h"
 #include "task.h"
+#include "subtask.h"
 
 #include <QObject>
 #include <QDir>
@@ -32,11 +33,12 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 
-DBManager::DBManager(QObject* parent) : QObject(parent) , isDbOpen(false) , m_rowid(0)
+DBManager::DBManager(QObject* parent) : QObject(parent) , isDbOpen(false) , m_maxSubTaskId(0) , m_maxTaskId(0)
 {
 	QString dirPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 	m_dbPath = dirPath + QDir::separator() + ".dtt" + QDir::separator();
-	QFileInfo dbInfo(m_dbPath+"tasks.sqlite");
+	m_dbName = "dtt.sqlite";
+	QFileInfo dbInfo(m_dbPath+m_dbName);
 	if(!dbInfo.exists()) {
 		if(!createDatabase())
 			return;
@@ -60,7 +62,7 @@ QList<Task> DBManager::tasks()
 
 void DBManager::addTask(Task t)
 {
-	if(!isDbOpen)
+	if(!isDbOpen || t.status() == Task::INVALID)
 		return;
 	t.setCreatedOn(QDate::currentDate());
 	t.setUpdatedOn(QDate());
@@ -79,9 +81,33 @@ void DBManager::addTask(Task t)
 		qDebug() << "ERROR : " << m_db->lastError().text();
 		return;
 	}
-	t.setId(++m_rowid);
-	m_tasks.insert(m_rowid,t);
+	t.setId(++m_maxTaskId);
+	m_tasks.insert(m_maxTaskId,t);
 	emit createdTask(t);
+}
+
+void DBManager::addSubTask(SubTask st)
+{
+	if(!isDbOpen || st.status() == SubTask::INVALID)
+		return;
+	st.setCreatedOn(QDate::currentDate());
+	st.setUpdatedOn(QDate());
+	QSqlQuery query(*m_db);
+	QString q = "INSERT INTO SubTasks Values (:description , :createdon , :updatedon , :parentid , :status)" ;
+	query.prepare(q);
+	query.bindValue(":description",st.description());
+	query.bindValue(":createdon",st.createdOn().toString("yyyy-MM-dd"));
+	query.bindValue(":updatedon",st.updatedOn().toString("yyyy-MM-dd"));
+	query.bindValue(":parentid",st.parentId());
+	query.bindValue(":status",st.status());
+	if(!query.exec()) {
+		qDebug() << this << "cannot create subtask" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return;
+	}
+	st.setId(++m_maxSubTaskId);
+	m_subTasks.insert(m_maxSubTaskId,st);
+	emit createdSubTask(st);
 }
 
 void DBManager::stepTask(quint16 id)
@@ -120,6 +146,7 @@ void DBManager::deleteTask(quint16 id)
 	Task t = m_tasks.value(id);
 	if(t.status() == Task::INVALID)
 		return;
+
 	QSqlQuery query(*m_db);
 	
 	QString q = "DELETE FROM Tasks WHERE rowid = :id" ;
@@ -135,10 +162,30 @@ void DBManager::deleteTask(quint16 id)
 	emit deletedTask(t);
 }
 
+void DBManager::deleteSubTask(quint16 id)
+{
+	SubTask t = m_subTasks.value(id);
+	if(t.status() == SubTask::INVALID)
+		return;
+	QSqlQuery query(*m_db);
+
+	QString q = "DELETE FROM SubTasks WHERE rowid = :id" ;
+	query.prepare(q);
+	query.bindValue(":id",t.id());
+	if(!query.exec())
+	{
+		qDebug() << this << "cannot delete subtask" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return;
+	}
+	m_subTasks.remove(t.id());
+	emit deletedSubTask(t);
+}
+
 bool DBManager::openDatabase()
 {
 	m_db = new QSqlDatabase(QSqlDatabase::addDatabase("QSQLITE"));
-	m_db->setDatabaseName(m_dbPath + "tasks.sqlite");
+	m_db->setDatabaseName(m_dbPath + m_dbName);
 	if(!m_db->open()) {
 		qDebug() << this << "cannot open Database Tasks" ;
 		return false;
@@ -156,44 +203,62 @@ bool DBManager::createDatabase()
 {
 	if(!QDir(m_dbPath).exists())
 		QDir().mkdir(m_dbPath);
-	QFile dbFile(m_dbPath+"tasks.sqlite");
+	QFile dbFile(m_dbPath+m_dbName);
 	dbFile.open(QFile::ReadWrite);
 	dbFile.close();
 
 	QFileInfo dbInfo(m_dbPath);
 	if(!dbInfo.exists()) {
-		qDebug() << this << "Cannot Create file tasks.sqlite in " << m_dbPath ;
+		qDebug() << this << "Cannot Create file " << m_dbName << " in " << m_dbPath ;
 		return false;
 	}
 
 	QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE","create-database-temporary");
-	db.setDatabaseName(m_dbPath+"tasks.sqlite");
+	db.setDatabaseName(m_dbPath+m_dbName);
 	if(!db.open()) {
 		qDebug() << this << "cannot open Database Tasks" ;
 		return false;
 	}
-	
+
 	QSqlQuery query(db);
 	QString q = "CREATE TABLE Tasks (title VARCHAR(50) NOT NULL, description TEXT, score INTEGER NOT NULL, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER)";
-	
+
 	if(!query.exec(q))
 	{
 		qDebug() << this << "cannot create table Tasks" ;
 		qDebug() << "ERROR : " << db.lastError().text();
 		return false;
 	}
+
+	q = "CREATE TABLE SubTasks (desc TEXT , createdon DATE , completedon DATE , taskid INTEGER , status INTEGER , FOREIGN KEY(taskid) REFERENCES Tasks(rowid))";
+
+	if(!query.exec(q))
+	{
+		qDebug() << this << "cannot create table SubTasks" ;
+		qDebug() << "ERROR : " << db.lastError().text();
+		return false;
+	}
+
 	db.close();
 	return true;
 }
 
-bool DBManager::loadDatabase()
+void DBManager::loadDatabase()
+{
+	m_maxTaskId = loadTasks();
+	m_maxSubTaskId = loadSubTasks();
+	if(m_maxTaskId > 0 && m_maxSubTaskId > 0)
+		matchTasksWithSubTasks();
+}
+
+quint16 DBManager::loadTasks()
 {
 	QSqlQuery query(*m_db);
 	QString q = "SELECT rowid, * FROM Tasks";
 	if(!query.exec(q)) {
 		qDebug() << this << "cannot load tasks" ;
 		qDebug() << "ERROR : " << m_db->lastError().text();
-		return false;
+		return 0;
 	}
 	quint16 row = 0;
 	while(query.next())
@@ -210,6 +275,38 @@ bool DBManager::loadDatabase()
 		t.setStatus(Task::Status(query.value(7).toInt()));
 		m_tasks.insert(t.id(),t);
 	}
-	m_rowid = row;
-	return true;
+	return row;
+}
+
+quint16 DBManager::loadSubTasks()
+{
+	QSqlQuery query(*m_db);
+	QString q = "SELECT rowid, * FROM SubTasks";
+	if(!query.exec(q)) {
+		qDebug() << this << "cannot load subtasks" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return 0;
+	}
+	quint16 row = 0;
+	while(query.next())
+	{
+		SubTask st;
+		row = query.value(0).toInt();
+		st.setId(row);
+		st.setDescription(query.value(1).toString());
+		st.setCreatedOn(query.value(2).toDate());
+		st.setUpdatedOn(query.value(3).toDate());
+		st.setParentId(query.value(4).toInt());
+		st.setStatus(SubTask::Status(query.value(5).toInt()));
+		m_subTasks.insert(st.id(),st);
+	}
+	return row;
+}
+
+void DBManager::matchTasksWithSubTasks()
+{
+	foreach (SubTask st, m_subTasks) {
+		if(st.status() != SubTask::INVALID)
+			m_tasks[st.parentId()].addSubTask(st);
+	}
 }
