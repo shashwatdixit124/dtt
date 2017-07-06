@@ -24,6 +24,9 @@
 #include <QObject>
 #include <QDate>
 #include <QDebug>
+#include <QList>
+
+class SubTask;
 
 class Task
 {
@@ -46,6 +49,7 @@ public:
 	QDate createdOn() const;
 	QDate updatedOn() const;
 	Status status() const;
+	QList<SubTask> subtasks() const;
 
 	void setId(quint16);
 	void setTitle(QString);
@@ -55,6 +59,8 @@ public:
 	void setCreatedOn(QDate);
 	void setUpdatedOn(QDate);
 	void setStatus(Status);
+	void addSubTask(SubTask);
+	void removeSubTask(SubTask);
 
 	void print();
 
@@ -67,6 +73,7 @@ protected:
 	QDate m_createdOn;
 	QDate m_updatedOn;
 	Status m_status;
+	QList<SubTask> m_subtasks;
 
 };
 

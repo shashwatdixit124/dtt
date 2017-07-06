@@ -19,6 +19,7 @@
  */
 
 #include "task.h"
+#include "subtask.h"
 
 #include <QObject>
 #include <QDate>
@@ -111,6 +112,25 @@ void Task::setStatus(Task::Status status)
 	m_status = status;
 }
 
+void Task::addSubTask(SubTask st)
+{
+	m_subtasks.push_back(st);
+}
+
+void Task::removeSubTask(SubTask st)
+{
+	if(st.parentId() != id())
+		return;
+
+	QList<SubTask> temp = subtasks();
+	for(int i=0; i<temp.count() ; i++) {
+		if(st.id() == temp.value(i) && temp.value(i).status() != SubTask::INVALID) {
+			m_subtasks.removeAt(i);
+			break;
+		}
+	}
+}
+
 void Task::print()
 {
 	qDebug() << "___ Task No " << id() << " ___" ;
@@ -121,4 +141,17 @@ void Task::print()
 	qDebug() << " Created On : " << createdOn();
 	qDebug() << " Updated On : " << updatedOn();
 	qDebug() << " Status : " << status();
+	if(m_subtasks.count() == 0)
+		qDebug() << " No SubTasks Listed " ;
+	else {
+		qDebug() << " SubTasks " ;
+		foreach (SubTask st, m_subtasks) {
+			qDebug() << st.description() ;
+		}
+	}
+}
+
+QList<SubTask> Task::subtasks() const
+{
+	return m_subtasks;
 }
