@@ -6,6 +6,7 @@ set(dtt_SRS
 	pendingtasks.cpp
 	wiptasks.cpp
 	completedtasks.cpp
+	subtask.cpp
 )
 
 set(dtt_RCC
