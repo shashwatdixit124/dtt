@@ -35,7 +35,7 @@
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
 
-DBManager::DBManager(QObject* parent) : QObject(parent) , isDbOpen(false) , m_maxSubTaskId(0) , m_maxTaskId(0)
+DBManager::DBManager(QObject* parent) : QObject(parent) , isDbOpen(false)
 {
 	QString dirPath = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 	m_dbPath = dirPath + QDir::separator() + ".dtt" + QDir::separator();
@@ -134,7 +134,7 @@ bool DBManager::addTask(Task * t)
 		qDebug() << "ERROR : " << m_db->lastError().text();
 		return false;
 	}
-	return false;
+	return true;
 }
 
 bool DBManager::stepTask(Task *t)
@@ -170,7 +170,7 @@ bool DBManager::stepTask(Task *t)
 
 bool DBManager::deleteTask(Task *t)
 {
-	if(!isDbOpen || t.status() == Task::INVALID)
+	if(!isDbOpen || t->status() == Task::INVALID)
 		return false;
 
 	QSqlQuery query(*m_db);
@@ -189,7 +189,7 @@ bool DBManager::deleteTask(Task *t)
 
 bool DBManager::addSubTask(SubTask *st)
 {
-	if(!isDbOpen || st.status() == SubTask::INVALID)
+	if(!isDbOpen || st->status() == SubTask::INVALID)
 		return false;
 
 	QSqlQuery query(*m_db);
@@ -233,7 +233,7 @@ bool DBManager::stepSubTask(SubTask *s)
 bool DBManager::deleteSubTask(SubTask *s)
 {
 	if(!isDbOpen || s->status() == SubTask::INVALID)
-		return;
+		return false;
 
 	QSqlQuery query(*m_db);
 

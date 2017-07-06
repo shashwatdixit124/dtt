@@ -154,9 +154,9 @@ void Task::print()
 		qDebug() << " No SubTasks Listed " ;
 	else {
 		qDebug() << " SubTasks " ;
-		foreach(SubTask st, m_list->subTasks())
+		foreach(SubTask *st, subTasks())
 		{
-			qDebug() << st.description();
+			qDebug() << st->description();
 		}
 	}
 }

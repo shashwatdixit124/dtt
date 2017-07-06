@@ -63,7 +63,7 @@ int SubTaskList::rowCount(const QModelIndex& parent) const
 
 void SubTaskList::add(SubTask *st)
 {
-	if(st.status() != SubTask::PENDING)
+	if(st->status() != SubTask::PENDING)
 		return;
 	beginInsertRows(QModelIndex(), rowCount() , rowCount());
 	m_subTasks.push_front(st);

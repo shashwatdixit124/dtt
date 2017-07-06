@@ -64,14 +64,26 @@ public:
 	QList<int> wip7Day();
 	QList<int> completed7Day();
 
+	QList<Task*> tasks();
+
 	Q_INVOKABLE void addTask(QString,QString,quint16,QString);
 	Q_INVOKABLE void stepTask(quint16);
 	Q_INVOKABLE void deleteTask(quint16);
+
 	Q_INVOKABLE void addSubTask(quint16,QString);
+	Q_INVOKABLE void stepSubTask(quint16);
+	Q_INVOKABLE void deleteSubTask(quint16);
 
 	static QObject* taskmanager_singleton(QQmlEngine *engine, QJSEngine *scriptEngine);
 
 Q_SIGNALS:
+	void taskAdded(Task*);
+	void taskStepped(Task *);
+	void taskDeleted(Task *);
+	void subTaskAdded(SubTask *);
+	void subTaskStepped(SubTask *);
+	void subTaskDeleted(SubTask *);
+
 	void updateGraph();
 	void currentTaskChanged();
 
@@ -83,7 +95,13 @@ private:
 	PendingTasks* m_pending;
 	WipTasks* m_wip;
 	CompletedTasks* m_completed;
+
 	quint16 m_currTask;
+	QMap<quint16, Task*> m_tasks;
+	QMap<quint16, SubTask*> m_subTasks;
+	QList<Task*> m_deletedTasks;
+	QList<SubTask*> m_deletedSubTasks;
+
 	int m_maxYValue;
 	QList<int> m_pending7Day;
 	QList<int> m_wip7Day;
