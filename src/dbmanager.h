@@ -21,12 +21,12 @@
 #ifndef DBMANAGER_H
 #define DBMANAGER_H
 
-#include "task.h"
-#include "subtask.h"
-
 #include <QObject>
-#include <QMap>
+#include <QList>
 #include <QtSql/QSqlDatabase>
+
+class Task;
+class SubTask;
 
 class DBManager : public QObject
 {
@@ -35,41 +35,27 @@ public:
 	explicit DBManager(QObject* parent = nullptr);
 	~DBManager();
 
-	QList<Task> tasks();
+	QList<Task*> tasks();
+	QList<SubTask*> subTasks();
 
-	Task& task(quint16);
+	bool addTask(Task *);
+	bool stepTask(Task *);
+	bool deleteTask(Task *);
 
-	void addTask(Task);
-	void addSubTask(SubTask);
-	void stepTask(quint16);
-	void deleteTask(quint16);
-	void deleteSubTask(quint16);
-
-Q_SIGNALS:
-	void createdTask(Task);
-	void createdSubTask(SubTask);
-	void stepped(Task);
-	void deletedTask(Task);
-	void deletedSubTask(SubTask);
+	bool addSubTask(SubTask *);
+	bool stepSubTask(SubTask *);
+	bool deleteSubTask(SubTask *);
 
 protected:
 	bool openDatabase();
 	bool closeDatabase();
 	bool createDatabase();
-	void loadDatabase();
-	quint16 loadTasks();
-	quint16 loadSubTasks();
-	void matchTasksWithSubTasks();
 
 private:
 	QSqlDatabase* m_db;
 	bool isDbOpen;
-	quint16 m_maxTaskId;
-	quint16 m_maxSubTaskId;
 	QString m_dbPath;
 	QString m_dbName;
-	QMap<quint16,Task> m_tasks;
-	QMap<quint16,SubTask> m_subTasks;
 };
 
 #endif

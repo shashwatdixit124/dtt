@@ -23,12 +23,14 @@
 #include "subtask.h"
 
 #include <QObject>
-#include <QDir>
-#include <QFile>
 #include <QList>
+
+#include <QDir>
 #include <QDebug>
+#include <QFile>
 #include <QFileInfo>
 #include <QStandardPaths>
+
 #include <QtSql/QSqlDatabase>
 #include <QtSql/QSqlQuery>
 #include <QtSql/QSqlError>
@@ -45,7 +47,6 @@ DBManager::DBManager(QObject* parent) : QObject(parent) , isDbOpen(false) , m_ma
 	}
 	if(openDatabase()){
 		isDbOpen = true;
-		loadDatabase();
 	}
 }
 
@@ -55,139 +56,197 @@ DBManager::~DBManager()
 		closeDatabase();
 }
 
-QList<Task> DBManager::tasks()
+QList<Task *> DBManager::tasks()
 {
-	return m_tasks.values();
-}
-
-Task& DBManager::task(quint16 id)
-{
-	foreach (Task t, m_tasks.values()) {
-		if(t.id() == id)
-			return t;
+	QList<Task*> tasks;
+	if(!isDbOpen)
+		return tasks;
+	QSqlQuery query(*m_db);
+	QString q = "SELECT rowid, * FROM Tasks";
+	if(!query.exec(q)) {
+		qDebug() << this << "cannot load tasks" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return tasks;
 	}
+	quint16 row = 0;
+	while(query.next())
+	{
+		Task *t = new Task();
+		row = query.value(0).toInt();
+		t->setId(row);
+		t->setTitle(query.value(1).toString());
+		t->setDescription(query.value(2).toString());
+		t->setScore(query.value(3).toInt());
+		t->setTag(query.value(4).toString());
+		t->setCreatedOn(query.value(5).toDate());
+		t->setUpdatedOn(query.value(6).toDate());
+		t->setStatus(Task::Status(query.value(7).toInt()));
+		tasks.push_back(t);
+	}
+	return tasks;
 }
 
-void DBManager::addTask(Task t)
+QList<SubTask *> DBManager::subTasks()
 {
-	if(!isDbOpen || t.status() == Task::INVALID)
-		return;
-	t.setCreatedOn(QDate::currentDate());
-	t.setUpdatedOn(QDate());
+	QList<SubTask *> subTasks;
+	if(!isDbOpen)
+		return subTasks;
+	QSqlQuery query(*m_db);
+	QString q = "SELECT rowid, * FROM SubTasks";
+	if(!query.exec(q)) {
+		qDebug() << this << "cannot load subtasks" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return subTasks;
+	}
+	quint16 row = 0;
+	while(query.next())
+	{
+		SubTask *s = new SubTask();
+		row = query.value(0).toInt();
+		s->setId(row);
+		s->setDescription(query.value(1).toString());
+		s->setCreatedOn(query.value(2).toDate());
+		s->setUpdatedOn(query.value(3).toDate());
+		s->setParentId(query.value(4).toInt());
+		s->setStatus(SubTask::Status(query.value(5).toInt()));
+		subTasks.push_back(s);
+	}
+	return subTasks;
+}
+
+bool DBManager::addTask(Task * t)
+{
+	if(!isDbOpen || t->status() == Task::INVALID)
+		return false;
+
 	QSqlQuery query(*m_db);
 	QString q = "INSERT INTO Tasks Values (:title , :description , :score , :tag , :createdon , :updatedon , :status)" ;
 	query.prepare(q);
-	query.bindValue(":title",t.title());
-	query.bindValue(":description",t.description());
-	query.bindValue(":score",t.score());
-	query.bindValue(":tag",t.tag());
-	query.bindValue(":createdon",t.createdOn().toString("yyyy-MM-dd"));
-	query.bindValue(":updatedon",t.updatedOn().toString("yyyy-MM-dd"));
-	query.bindValue(":status",t.status());
+	query.bindValue(":title",t->title());
+	query.bindValue(":description",t->description());
+	query.bindValue(":score",t->score());
+	query.bindValue(":tag",t->tag());
+	query.bindValue(":createdon",t->createdOn().toString("yyyy-MM-dd"));
+	query.bindValue(":updatedon",t->updatedOn().toString("yyyy-MM-dd"));
+	query.bindValue(":status",t->status());
 	if(!query.exec()) {
 		qDebug() << this << "cannot create task" ;
 		qDebug() << "ERROR : " << m_db->lastError().text();
-		return;
+		return false;
 	}
-	t.setId(++m_maxTaskId);
-	m_tasks.insert(m_maxTaskId,t);
-	emit createdTask(t);
+	return false;
 }
 
-void DBManager::addSubTask(SubTask st)
+bool DBManager::stepTask(Task *t)
 {
-	if(!isDbOpen || st.status() == SubTask::INVALID)
-		return;
-	st.setCreatedOn(QDate::currentDate());
-	st.setUpdatedOn(QDate());
-	QSqlQuery query(*m_db);
-	QString q = "INSERT INTO SubTasks Values (:description , :createdon , :updatedon , :parentid , :status)" ;
-	query.prepare(q);
-	query.bindValue(":description",st.description());
-	query.bindValue(":createdon",st.createdOn().toString("yyyy-MM-dd"));
-	query.bindValue(":updatedon",st.updatedOn().toString("yyyy-MM-dd"));
-	query.bindValue(":parentid",st.parentId());
-	query.bindValue(":status",st.status());
-	if(!query.exec()) {
-		qDebug() << this << "cannot create subtask" ;
-		qDebug() << "ERROR : " << m_db->lastError().text();
-		return;
-	}
-	st.setId(++m_maxSubTaskId);
-	m_subTasks.insert(m_maxSubTaskId,st);
-	emit createdSubTask(st);
-}
+	if(!isDbOpen || t->status() == Task::INVALID || t->status() == Task::COMPLETED)
+		return false;
 
-void DBManager::stepTask(quint16 id)
-{
-	Task t = m_tasks.value(id);
-	if(t.status() == Task::INVALID)
-		return;
-	if(t.status() == Task::COMPLETED)
-		return;
-	if(t.status() == Task::PENDING) {
-		t.setStatus(Task::WIP);
+	Task::Status stat = t->status();
+
+	if(t->status() == Task::PENDING) {
+		t->setStatus(Task::WIP);
 	}
-	else if(t.status() == Task::WIP) {
-		t.setStatus(Task::COMPLETED);
+	else if(t->status() == Task::WIP) {
+		t->setStatus(Task::COMPLETED);
 	}
+
 	QSqlQuery query(*m_db);
 
 	QString q = "UPDATE Tasks SET updatedon = :updatedon , status = :status WHERE rowid = :id" ;
 	query.prepare(q);
-	query.bindValue(":id",t.id());
+	query.bindValue(":id",t->id());
 	query.bindValue(":updatedon",QDate::currentDate().toString("yyyy-MM-dd"));
-	query.bindValue(":status",t.status());
+	query.bindValue(":status",t->status());
 	if(!query.exec())
 	{
 		qDebug() << this << "cannot update task" ;
 		qDebug() << "ERROR : " << m_db->lastError().text();
-		return;
+		t->setStatus(stat);
+		return false;
 	}
-	t.setUpdatedOn(QDate::currentDate());
-	m_tasks[t.id()] = t;
-	emit stepped(t);
+	return true;
 }
 
-void DBManager::deleteTask(quint16 id)
+bool DBManager::deleteTask(Task *t)
 {
-	Task t = m_tasks.value(id);
-	if(t.status() == Task::INVALID)
-		return;
+	if(!isDbOpen || t.status() == Task::INVALID)
+		return false;
 
 	QSqlQuery query(*m_db);
-	
+
 	QString q = "DELETE FROM Tasks WHERE rowid = :id" ;
 	query.prepare(q);
-	query.bindValue(":id",t.id());
+	query.bindValue(":id",t->id());
 	if(!query.exec())
 	{
 		qDebug() << this << "cannot delete task" ;
 		qDebug() << "ERROR : " << m_db->lastError().text();
-		return;
+		return false;
 	}
-	m_tasks.remove(t.id());
-	emit deletedTask(t);
+	return true;
 }
 
-void DBManager::deleteSubTask(quint16 id)
+bool DBManager::addSubTask(SubTask *st)
 {
-	SubTask t = m_subTasks.value(id);
-	if(t.status() == SubTask::INVALID)
+	if(!isDbOpen || st.status() == SubTask::INVALID)
+		return false;
+
+	QSqlQuery query(*m_db);
+	QString q = "INSERT INTO SubTasks Values (:description , :createdon , :updatedon , :parentid , :status)" ;
+	query.prepare(q);
+	query.bindValue(":description",st->description());
+	query.bindValue(":createdon",st->createdOn().toString("yyyy-MM-dd"));
+	query.bindValue(":updatedon",st->updatedOn().toString("yyyy-MM-dd"));
+	query.bindValue(":parentid",st->parentId());
+	query.bindValue(":status",st->status());
+	if(!query.exec()) {
+		qDebug() << this << "cannot create subtask" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return false;
+	}
+	return true;
+}
+
+bool DBManager::stepSubTask(SubTask *s)
+{
+	if(!isDbOpen || s->status() != SubTask::PENDING)
+		return false;
+
+	QSqlQuery query(*m_db);
+
+	QString q = "UPDATE Tasks SET updatedon = :updatedon , status = :status WHERE rowid = :id" ;
+	query.prepare(q);
+	query.bindValue(":id",s->id());
+	query.bindValue(":updatedon",QDate::currentDate().toString("yyyy-MM-dd"));
+	query.bindValue(":status",SubTask::COMPLETED);
+	if(!query.exec())
+	{
+		qDebug() << this << "cannot update task" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return false;
+	}
+	s->setStatus(SubTask::COMPLETED);
+	return true;
+}
+
+bool DBManager::deleteSubTask(SubTask *s)
+{
+	if(!isDbOpen || s->status() == SubTask::INVALID)
 		return;
+
 	QSqlQuery query(*m_db);
 
 	QString q = "DELETE FROM SubTasks WHERE rowid = :id" ;
 	query.prepare(q);
-	query.bindValue(":id",t.id());
+	query.bindValue(":id",s->id());
 	if(!query.exec())
 	{
 		qDebug() << this << "cannot delete subtask" ;
 		qDebug() << "ERROR : " << m_db->lastError().text();
-		return;
+		return false;
 	}
-	m_subTasks.remove(t.id());
-	emit deletedSubTask(t);
+	return true;
 }
 
 bool DBManager::openDatabase()
@@ -238,7 +297,7 @@ bool DBManager::createDatabase()
 		return false;
 	}
 
-	q = "CREATE TABLE SubTasks (desc TEXT , createdon DATE , completedon DATE , taskid INTEGER , status INTEGER , FOREIGN KEY(taskid) REFERENCES Tasks(rowid))";
+	q = "CREATE TABLE SubTasks (desc TEXT , createdon DATE , updatedon DATE , taskid INTEGER , status INTEGER , FOREIGN KEY(taskid) REFERENCES Tasks(rowid))";
 
 	if(!query.exec(q))
 	{
@@ -249,72 +308,4 @@ bool DBManager::createDatabase()
 
 	db.close();
 	return true;
-}
-
-void DBManager::loadDatabase()
-{
-	m_maxTaskId = loadTasks();
-	m_maxSubTaskId = loadSubTasks();
-	if(m_maxTaskId > 0 && m_maxSubTaskId > 0)
-		matchTasksWithSubTasks();
-}
-
-quint16 DBManager::loadTasks()
-{
-	QSqlQuery query(*m_db);
-	QString q = "SELECT rowid, * FROM Tasks";
-	if(!query.exec(q)) {
-		qDebug() << this << "cannot load tasks" ;
-		qDebug() << "ERROR : " << m_db->lastError().text();
-		return 0;
-	}
-	quint16 row = 0;
-	while(query.next())
-	{
-		Task t;
-		row = query.value(0).toInt();
-		t.setId(row);
-		t.setTitle(query.value(1).toString());
-		t.setDescription(query.value(2).toString());
-		t.setScore(query.value(3).toInt());
-		t.setTag(query.value(4).toString());
-		t.setCreatedOn(query.value(5).toDate());
-		t.setUpdatedOn(query.value(6).toDate());
-		t.setStatus(Task::Status(query.value(7).toInt()));
-		m_tasks.insert(t.id(),t);
-	}
-	return row;
-}
-
-quint16 DBManager::loadSubTasks()
-{
-	QSqlQuery query(*m_db);
-	QString q = "SELECT rowid, * FROM SubTasks";
-	if(!query.exec(q)) {
-		qDebug() << this << "cannot load subtasks" ;
-		qDebug() << "ERROR : " << m_db->lastError().text();
-		return 0;
-	}
-	quint16 row = 0;
-	while(query.next())
-	{
-		SubTask st;
-		row = query.value(0).toInt();
-		st.setId(row);
-		st.setDescription(query.value(1).toString());
-		st.setCreatedOn(query.value(2).toDate());
-		st.setUpdatedOn(query.value(3).toDate());
-		st.setParentId(query.value(4).toInt());
-		st.setStatus(SubTask::Status(query.value(5).toInt()));
-		m_subTasks.insert(st.id(),st);
-	}
-	return row;
-}
-
-void DBManager::matchTasksWithSubTasks()
-{
-	foreach (SubTask st, m_subTasks) {
-		if(st.status() != SubTask::INVALID)
-			m_tasks[st.parentId()].addSubTask(st);
-	}
 }
