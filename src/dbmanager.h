@@ -37,6 +37,8 @@ public:
 
 	QList<Task> tasks();
 
+	Task& task(quint16);
+
 	void addTask(Task);
 	void addSubTask(SubTask);
 	void stepTask(quint16);

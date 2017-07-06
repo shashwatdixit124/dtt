@@ -60,6 +60,14 @@ QList<Task> DBManager::tasks()
 	return m_tasks.values();
 }
 
+Task& DBManager::task(quint16 id)
+{
+	foreach (Task t, m_tasks.values()) {
+		if(t.id() == id)
+			return t;
+	}
+}
+
 void DBManager::addTask(Task t)
 {
 	if(!isDbOpen || t.status() == Task::INVALID)

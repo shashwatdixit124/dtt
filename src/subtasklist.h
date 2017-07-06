@@ -43,6 +43,7 @@ public:
 	~SubTaskList();
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
+	QList<SubTask> subTasks();
 
 	void add(SubTask);
 	void update(SubTask);

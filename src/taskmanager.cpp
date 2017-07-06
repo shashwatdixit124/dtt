@@ -20,6 +20,7 @@
 
 #include "taskmanager.h"
 #include "task.h"
+#include "subtasklist.h"
 #include "dbmanager.h"
 #include "pendingtasks.h"
 #include "wiptasks.h"
@@ -67,9 +68,9 @@ void TaskManager::setCurrentTask(quint16 id)
 
 QAbstractListModel* TaskManager::subTasks()
 {
-	Task t = m_db->task(m_currTask);
+	Task &t = m_db->task(m_currTask);
 	if(t.status() == Task::INVALID)
-		return;
+		return nullptr;
 
 	return t.subTasks();
 }
@@ -130,6 +131,22 @@ void TaskManager::stepTask(quint16 id)
 void  TaskManager::deleteTask(quint16 id)
 {
 	m_db->deleteTask(id);
+}
+
+void TaskManager::addSubTask(quint16 taskid, QString description)
+{
+	if(description.isEmpty())
+		return;
+
+	Task t = m_db->task(taskid);
+	if(t.status() == Task::INVALID)
+		return;
+
+	SubTask st;
+	st.setDescription(description);
+	st.setParentId(taskid);
+	st.setStatus(SubTask::PENDING);
+	m_db->addSubTask(st);
 }
 
 QObject * TaskManager::taskmanager_singleton(QQmlEngine* engine, QJSEngine* scriptEngine)

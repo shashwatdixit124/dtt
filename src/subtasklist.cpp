@@ -24,7 +24,7 @@
 #include <QObject>
 #include <QAbstractListModel>
 
-SubTaskList::SubTaskList(QObject *parent) : QObject(parent)
+SubTaskList::SubTaskList(QObject *parent) : QAbstractListModel(parent)
 {
 }
 
@@ -50,17 +50,22 @@ QVariant SubTaskList::data(const QModelIndex& index, int role) const
 	return QVariant();
 }
 
+QList<SubTask> SubTaskList::subTasks()
+{
+	return m_subTasks;
+}
+
 int SubTaskList::rowCount(const QModelIndex& parent) const
 {
 	Q_UNUSED(parent);
-	return m_tasks.count();
+	return m_subTasks.count();
 }
 
 void SubTaskList::add(SubTask st)
 {
 	if(st.status() != SubTask::PENDING)
 		return;
-	beginInsertRows(QModelIndex(), rowcount() , rowCount());
+	beginInsertRows(QModelIndex(), rowCount() , rowCount());
 	m_subTasks.push_front(st);
 	endInsertRows();
 }

@@ -142,13 +142,13 @@ void Task::print()
 	qDebug() << " Created On : " << createdOn();
 	qDebug() << " Updated On : " << updatedOn();
 	qDebug() << " Status : " << status();
-	if(m_subtasks.count() == 0)
+	if(m_list->rowCount() == 0)
 		qDebug() << " No SubTasks Listed " ;
 	else {
 		qDebug() << " SubTasks " ;
-		for(int i = 0 ; i<m_list->rowCount() ; i++)
+		foreach(SubTask st, m_list->subTasks())
 		{
-			qDebug() << m_list->data(i,SubTaskList::DESCRIPTION).toString();
+			qDebug() << st.description();
 		}
 	}
 }

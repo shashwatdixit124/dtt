@@ -67,6 +67,7 @@ public:
 	Q_INVOKABLE void addTask(QString,QString,quint16,QString);
 	Q_INVOKABLE void stepTask(quint16);
 	Q_INVOKABLE void deleteTask(quint16);
+	Q_INVOKABLE void addSubTask(quint16,QString);
 
 	static QObject* taskmanager_singleton(QQmlEngine *engine, QJSEngine *scriptEngine);
 

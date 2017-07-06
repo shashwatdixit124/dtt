@@ -417,6 +417,11 @@ ApplicationWindow { id: root
 					}
 				}
 			}
+			MouseArea {
+				anchors.fill: parent
+				cursorShape: Qt.PointingHandCursor
+				onClicked: Dtt.currentTask = _T_id
+			}
 		}
 	}
 	
