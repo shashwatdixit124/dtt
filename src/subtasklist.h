@@ -43,15 +43,15 @@ public:
 	~SubTaskList();
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
-	QList<SubTask> subTasks();
+	QList<SubTask*> subTasks();
 
-	void add(SubTask);
-	void update(SubTask);
-	void remove(SubTask);
+	void add(SubTask *);
+	void update(SubTask *);
+	void remove(SubTask *);
 
 protected:
 	QHash<int, QByteArray> roleNames() const;
-	QList<SubTask> m_subTasks;
+	QList<SubTask*> m_subTasks;
 
 };
 

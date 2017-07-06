@@ -36,21 +36,21 @@ QVariant SubTaskList::data(const QModelIndex& index, int role) const
 {
 	if (index.row() < 0 || index.row() >= m_subTasks.count())
 		return QVariant();
-	SubTask t = m_subTasks[index.row()];
+	SubTask *t = m_subTasks[index.row()];
 	if(role == ID)
-		return t.id();
+		return t->id();
 	else if(role == DESCRIPTION)
-		return t.description();
+		return t->description();
 	else if(role == CREATEDON)
-		return t.createdOn().toString("MMMM dd , yyyy");
+		return t->createdOn().toString("MMMM dd , yyyy");
 	else if(role == UPDATEDON)
-		return t.updatedOn().toString("MMMM dd , yyyy");
+		return t->updatedOn().toString("MMMM dd , yyyy");
 	else if(role == STATUS)
-		return t.status();
+		return t->status();
 	return QVariant();
 }
 
-QList<SubTask> SubTaskList::subTasks()
+QList<SubTask *> SubTaskList::subTasks()
 {
 	return m_subTasks;
 }
@@ -61,7 +61,7 @@ int SubTaskList::rowCount(const QModelIndex& parent) const
 	return m_subTasks.count();
 }
 
-void SubTaskList::add(SubTask st)
+void SubTaskList::add(SubTask *st)
 {
 	if(st.status() != SubTask::PENDING)
 		return;
@@ -70,16 +70,15 @@ void SubTaskList::add(SubTask st)
 	endInsertRows();
 }
 
-void SubTaskList::update(SubTask st)
+void SubTaskList::update(SubTask *st)
 {
-	if(st.status() != SubTask::PENDING)
+	if(st->status() != SubTask::PENDING)
 		return;
 
 	for(int i = 0;i<rowCount();i++)
 	{
-		SubTask temp = m_subTasks[i];
-		if(temp.id() == st.id()) {
-			m_subTasks[i].setStatus(SubTask::COMPLETED);
+		SubTask *temp = m_subTasks[i];
+		if(temp->id() == st->id()) {
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();
 			beginInsertRows(QModelIndex(), i , i);
@@ -89,14 +88,14 @@ void SubTaskList::update(SubTask st)
 	}
 }
 
-void SubTaskList::remove(SubTask st)
+void SubTaskList::remove(SubTask *st)
 {
-	if(st.status() != SubTask::INVALID)
+	if(st->status() != SubTask::INVALID)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
-		SubTask temp = m_subTasks[i];
-		if(temp.id() == st.id()) {
+		SubTask *temp = m_subTasks[i];
+		if(temp->id() == st->id()) {
 			m_subTasks.removeAt(i);
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();

@@ -20,23 +20,23 @@
 
 #include "completedtasks.h"
 #include "task.h"
-#include "dbmanager.h"
+#include "taskmanager.h"
 
 #include <QAbstractListModel>
 #include <QObject>
 #include <QList>
 
-CompletedTasks::CompletedTasks(DBManager* db, QObject* parent) : QAbstractListModel(parent) , m_db(db)
+CompletedTasks::CompletedTasks(TaskManager *parent) : QAbstractListModel(parent)
 {
-	foreach(Task t,m_db->tasks())
+	foreach(Task *t, parent->tasks())
 	{
-		if(t.status() == Task::COMPLETED)
+		if(t->status() == Task::COMPLETED)
 			m_tasks.push_front(t);
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
-	connect(m_db,&DBManager::stepped,this,&CompletedTasks::updateAdd);
-	connect(m_db,&DBManager::deletedTask,this,&CompletedTasks::updateDelete);
+	connect(parent,&TaskManager::taskStepped,this,&CompletedTasks::updateAdd);
+	connect(parent,&TaskManager::taskDeleted,this,&CompletedTasks::updateDelete);
 }
 
 CompletedTasks::~CompletedTasks()
@@ -47,23 +47,23 @@ QVariant CompletedTasks::data(const QModelIndex& index, int role) const
 {
 	if (index.row() < 0 || index.row() >= m_tasks.count())
 		return QVariant();
-	Task t = m_tasks[index.row()];
+	Task *t = m_tasks[index.row()];
 	if(role == ID)
-		return t.id();
+		return t->id();
 	else if(role == TITLE)
-		return t.title();
+		return t->title();
 	else if(role == DESCRIPTION)
-		return t.description();
+		return t->description();
 	else if(role == SCORE)
-		return t.score();
+		return t->score();
 	else if(role == TAG)
-		return t.tag();
+		return t->tag();
 	else if(role == CREATEDON)
-		return t.createdOn().toString("MMMM dd , yyyy");
+		return t->createdOn().toString("MMMM dd , yyyy");
 	else if(role == UPDATEDON)
-		return t.updatedOn().toString("MMMM dd , yyyy");
+		return t->updatedOn().toString("MMMM dd , yyyy");
 	else if(role == STATUS)
-		return t.status();
+		return t->status();
 	return QVariant();
 }
 
@@ -73,23 +73,23 @@ int CompletedTasks::rowCount(const QModelIndex& parent) const
 	return m_tasks.count();
 }
 
-void CompletedTasks::updateAdd(Task t)
+void CompletedTasks::updateAdd(Task *t)
 {
-	if(t.status() != Task::COMPLETED)
+	if(t->status() != Task::COMPLETED)
 		return;
 	beginInsertRows(QModelIndex(), 0 , 0);
 	m_tasks.push_front(t);
 	endInsertRows();
 }
 
-void CompletedTasks::updateDelete(Task t)
+void CompletedTasks::updateDelete(Task *t)
 {
-	if(t.status() != Task::COMPLETED)
+	if(t->status() != Task::COMPLETED)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
-		Task tt = m_tasks[i];
-		if(tt.id() == t.id()) {
+		Task *tt = m_tasks[i];
+		if(tt->id() == t->id()) {
 			m_tasks.removeAt(i);
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();

@@ -26,7 +26,7 @@
 #include <QList>
 
 class Task;
-class DBManager;
+class TaskManager;
 
 class PendingTasks : public QAbstractListModel
 {
@@ -43,20 +43,19 @@ public:
 		STATUS
 	};
 
-	explicit PendingTasks(DBManager* db,QObject* parent = nullptr);
+	explicit PendingTasks(TaskManager* parent);
 	~PendingTasks();
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
 public Q_SLOTS:
-	void updateAdd(Task);
-	void updateStep(Task);
-	void updateDelete(Task);
+	void updateAdd(Task *);
+	void updateStep(Task *);
+	void updateDelete(Task *);
 
 protected:
 	QHash<int, QByteArray> roleNames() const;
-	DBManager *m_db;
-	QList<Task> m_tasks;
+	QList<Task*> m_tasks;
 
 };
 

@@ -51,7 +51,6 @@ public:
 	QDate createdOn() const;
 	QDate updatedOn() const;
 	Status status() const;
-	SubTaskList* subTasks() const;
 
 	void setId(quint16);
 	void setTitle(QString);
@@ -61,8 +60,12 @@ public:
 	void setCreatedOn(QDate);
 	void setUpdatedOn(QDate);
 	void setStatus(Status);
-	void addSubTask(SubTask);
-	void removeSubTask(SubTask);
+
+	QList<SubTask*> subTasks() const;
+	SubTaskList* list();
+
+	void addSubTask(SubTask*);
+	void removeSubTask(SubTask*);
 
 	void print();
 

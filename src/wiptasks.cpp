@@ -20,24 +20,24 @@
 
 #include "wiptasks.h"
 #include "task.h"
-#include "dbmanager.h"
+#include "taskmanager.h"
 
 #include <QAbstractListModel>
 #include <QObject>
 #include <QList>
 
-WipTasks::WipTasks(DBManager* db, QObject* parent) : QAbstractListModel(parent) , m_db(db)
+WipTasks::WipTasks(TaskManager *parent) : QAbstractListModel(parent)
 {
-	foreach(Task t,m_db->tasks())
+	foreach(Task *t, parent->tasks())
 	{
-		if(t.status() == Task::WIP)
+		if(t->status() == Task::WIP)
 			m_tasks.push_front(t);
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
-	connect(m_db,&DBManager::stepped,this,&WipTasks::updateAdd);
-	connect(m_db,&DBManager::stepped,this,&WipTasks::updateStep);
-	connect(m_db,&DBManager::deletedTask,this,&WipTasks::updateDelete);
+	connect(parent,&TaskManager::taskStepped,this,&WipTasks::updateAdd);
+	connect(parent,&TaskManager::taskStepped,this,&WipTasks::updateStep);
+	connect(parent,&TaskManager::taskDeleted,this,&WipTasks::updateDelete);
 }
 
 WipTasks::~WipTasks()
@@ -48,23 +48,23 @@ QVariant WipTasks::data(const QModelIndex& index, int role) const
 {
 	if (index.row() < 0 || index.row() >= m_tasks.count())
 		return QVariant();
-	Task t = m_tasks[index.row()];
+	Task *t = m_tasks[index.row()];
 	if(role == ID)
-		return t.id();
+		return t->id();
 	else if(role == TITLE)
-		return t.title();
+		return t->title();
 	else if(role == DESCRIPTION)
-		return t.description();
+		return t->description();
 	else if(role == SCORE)
-		return t.score();
+		return t->score();
 	else if(role == TAG)
-		return t.tag();
+		return t->tag();
 	else if(role == CREATEDON)
-		return t.createdOn().toString("MMMM dd , yyyy");
+		return t->createdOn().toString("MMMM dd , yyyy");
 	else if(role == UPDATEDON)
-		return t.updatedOn().toString("MMMM dd , yyyy");
+		return t->updatedOn().toString("MMMM dd , yyyy");
 	else if(role == STATUS)
-		return t.status();
+		return t->status();
 	return QVariant();
 }
 
@@ -74,23 +74,23 @@ int WipTasks::rowCount(const QModelIndex& parent) const
 	return m_tasks.count();
 }
 
-void WipTasks::updateAdd(Task t)
+void WipTasks::updateAdd(Task *t)
 {
-	if(t.status() != Task::WIP)
+	if(t->status() != Task::WIP)
 		return;
 	beginInsertRows(QModelIndex(), 0 , 0);
 	m_tasks.push_front(t);
 	endInsertRows();
 }
 
-void WipTasks::updateStep(Task t)
+void WipTasks::updateStep(Task *t)
 {
-	if(t.status() != Task::COMPLETED)
+	if(t->status() != Task::COMPLETED)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
-		Task tt = m_tasks[i];
-		if(tt.id() == t.id()) {
+		Task *tt = m_tasks[i];
+		if(tt->id() == t->id()) {
 			m_tasks.removeAt(i);
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();
@@ -99,14 +99,14 @@ void WipTasks::updateStep(Task t)
 	}
 }
 
-void WipTasks::updateDelete(Task t)
+void WipTasks::updateDelete(Task *t)
 {
-	if(t.status() != Task::WIP)
+	if(t->status() != Task::WIP)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
-		Task tt = m_tasks[i];
-		if(tt.id() == t.id()) {
+		Task *tt = m_tasks[i];
+		if(tt->id() == t->id()) {
 			m_tasks.removeAt(i);
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();

@@ -20,24 +20,24 @@
 
 #include "pendingtasks.h"
 #include "task.h"
-#include "dbmanager.h"
+#include "taskmanager.h"
 
 #include <QAbstractListModel>
 #include <QObject>
 #include <QList>
 
-PendingTasks::PendingTasks(DBManager* db, QObject* parent) : QAbstractListModel(parent) , m_db(db)
+PendingTasks::PendingTasks(TaskManager *parent) : QAbstractListModel(parent)
 {
-	foreach(Task t,m_db->tasks())
+	foreach(Task *t, parent->tasks())
 	{
-		if(t.status() == Task::PENDING)
+		if(t->status() == Task::PENDING)
 			m_tasks.push_front(t);
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
-	connect(m_db,&DBManager::createdTask,this,&PendingTasks::updateAdd);
-	connect(m_db,&DBManager::stepped,this,&PendingTasks::updateStep);
-	connect(m_db,&DBManager::deletedTask,this,&PendingTasks::updateDelete);
+	connect(parent,&TaskManager::taskAdded,this,&PendingTasks::updateAdd);
+	connect(parent,&TaskManager::taskStepped,this,&PendingTasks::updateStep);
+	connect(parent,&TaskManager::taskDeleted,this,&PendingTasks::updateDelete);
 }
 
 PendingTasks::~PendingTasks()
@@ -48,23 +48,23 @@ QVariant PendingTasks::data(const QModelIndex& index, int role) const
 {
 	if (index.row() < 0 || index.row() >= m_tasks.count())
 		return QVariant();
-	Task t = m_tasks[index.row()];
+	Task *t = m_tasks[index.row()];
 	if(role == ID)
-		return t.id();
+		return t->id();
 	else if(role == TITLE)
-		return t.title();
+		return t->title();
 	else if(role == DESCRIPTION)
-		return t.description();
+		return t->description();
 	else if(role == SCORE)
-		return t.score();
+		return t->score();
 	else if(role == TAG)
-		return t.tag();
+		return t->tag();
 	else if(role == CREATEDON)
-		return t.createdOn().toString("MMMM dd , yyyy");
+		return t->createdOn().toString("MMMM dd , yyyy");
 	else if(role == UPDATEDON)
-		return t.updatedOn().toString("MMMM dd , yyyy");
+		return t->updatedOn().toString("MMMM dd , yyyy");
 	else if(role == STATUS)
-		return t.status();
+		return t->status();
 	return QVariant();	
 }
 
@@ -74,23 +74,23 @@ int PendingTasks::rowCount(const QModelIndex& parent) const
 	return m_tasks.count();
 }
 
-void PendingTasks::updateAdd(Task t)
+void PendingTasks::updateAdd(Task *t)
 {
-	if(t.status() != Task::PENDING)
+	if(t->status() != Task::PENDING)
 		return;
 	beginInsertRows(QModelIndex(), 0 , 0);
 	m_tasks.push_front(t);
 	endInsertRows();
 }
 
-void PendingTasks::updateStep(Task t)
+void PendingTasks::updateStep(Task *t)
 {
-	if(t.status() != Task::WIP)
+	if(t->status() != Task::WIP)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
-		Task tt = m_tasks[i];
-		if(tt.id() == t.id()) {
+		Task *tt = m_tasks[i];
+		if(tt->id() == t->id()) {
 			m_tasks.removeAt(i);
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();
@@ -99,14 +99,14 @@ void PendingTasks::updateStep(Task t)
 	}
 }
 
-void PendingTasks::updateDelete(Task t)
+void PendingTasks::updateDelete(Task *t)
 {
-	if(t.status() != Task::PENDING)
+	if(t->status() != Task::PENDING)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
-		Task tt = m_tasks[i];
-		if(tt.id() == t.id()) {
+		Task *tt = m_tasks[i];
+		if(tt->id() == t->id()) {
 			m_tasks.removeAt(i);
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();

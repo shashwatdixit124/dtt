@@ -74,11 +74,6 @@ Task::Status Task::status() const
 	return m_status;
 }
 
-SubTaskList* Task::subTasks() const
-{
-	return m_list;
-}
-
 void Task::setId(quint16 id)
 {
 	m_id = id;
@@ -119,14 +114,27 @@ void Task::setStatus(Task::Status status)
 	m_status = status;
 }
 
-void Task::addSubTask(SubTask st)
+QList<SubTask*> Task::subTasks() const
 {
+	return m_list->subTasks();
+}
+
+SubTaskList* Task::list()
+{
+	return m_list;
+}
+
+void Task::addSubTask(SubTask *st)
+{
+	if(st->parentId() != id())
+		return;
+
 	m_list->add(st);
 }
 
-void Task::removeSubTask(SubTask st)
+void Task::removeSubTask(SubTask *st)
 {
-	if(st.parentId() != id())
+	if(st->parentId() != id())
 		return;
 
 	m_list->remove(st);
