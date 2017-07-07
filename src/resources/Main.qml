@@ -278,6 +278,19 @@ ApplicationWindow { id: root
 			radius: 3
 			width: parent.width
 			height: titleBlk.height + descBlk.height + scoreandtagBlk.height + createdonBlk.height +/* updatedonBlk.height*/ + 40
+
+			MouseArea {
+				anchors.fill: parent
+				cursorShape: Qt.PointingHandCursor
+				onClicked: {
+					Dtt.currentTask = _T_id
+					console.log()
+					showTaskPopup.taskid = _T_id
+					showTaskPopup.title = _T_title
+					showTaskPopup.show()
+				}
+			}
+
 			Item { id: titleBlk
 				width: parent.width - 40
 				height: title.text != "" ? title.implicitHeight + 10 : 0
@@ -417,11 +430,6 @@ ApplicationWindow { id: root
 					}
 				}
 			}
-			MouseArea {
-				anchors.fill: parent
-				cursorShape: Qt.PointingHandCursor
-				onClicked: Dtt.currentTask = _T_id
-			}
 		}
 	}
 	
@@ -436,5 +444,7 @@ ApplicationWindow { id: root
 	}
 
 	CreateTaskPopup { id: createTaskPopup }
+
+	ShowTaskPopup { id: showTaskPopup }
 
 }
