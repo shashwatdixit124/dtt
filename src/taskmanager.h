@@ -101,6 +101,8 @@ private:
 	QMap<quint16, SubTask*> m_subTasks;
 	QList<Task*> m_deletedTasks;
 	QList<SubTask*> m_deletedSubTasks;
+	quint16 m_maxTaskId;
+	quint16 m_maxSubTaskId;
 
 	int m_maxYValue;
 	QList<int> m_pending7Day;

@@ -32,14 +32,20 @@
 #include <QDate>
 #include <QDebug>
 
-TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager(this)) , m_currTask(0)
+TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager(this)) ,
+	m_currTask(0) , m_maxSubTaskId(0) , m_maxTaskId(0)
 {
 	QList<Task*> tasks = m_db->tasks();
-	foreach(Task* t, tasks)
+	foreach(Task* t, tasks) {
+		if(t->id() > m_maxTaskId)
+			m_maxTaskId = t->id();
 		m_tasks.insert(t->id(),t);
+	}
 
 	QList<SubTask*> subTasks = m_db->subTasks();
 	foreach (SubTask* s, subTasks) {
+		if(s->id() > m_maxSubTaskId)
+			m_maxSubTaskId = s->id();
 		m_subTasks.insert(s->id(),s);
 		m_tasks[s->parentId()]->addSubTask(s);
 	}
@@ -62,6 +68,14 @@ TaskManager::~TaskManager()
 	m_pending->deleteLater();
 	m_wip->deleteLater();
 	m_completed->deleteLater();
+
+	foreach (SubTask * s, m_deletedSubTasks) {
+		delete s;
+	}
+
+	foreach (Task * t, m_deletedTasks) {
+		delete t;
+	}
 
 	foreach (SubTask *s, m_subTasks.values()) {
 		delete s;
@@ -141,6 +155,7 @@ void TaskManager::addTask(QString title, QString desc, quint16 score, QString ta
 	if(title.isEmpty())
 		return;
 	Task *t = new Task();
+	t->setId(++m_maxTaskId);
 	t->setTitle(title);
 	t->setDescription(desc);
 	t->setScore(score);
@@ -187,6 +202,16 @@ void  TaskManager::deleteTask(quint16 id)
 		return;
 
 	m_tasks.remove(t->id());
+
+	if(t->id() == m_maxTaskId)
+	{
+		m_maxTaskId = 0;
+		foreach (Task *t, m_tasks.values()) {
+			if(t->id() > m_maxTaskId)
+				m_maxTaskId = t->id();
+		}
+	}
+
 	m_deletedTasks.push_back(t);
 	emit taskDeleted(t);
 	load7day();
@@ -202,6 +227,7 @@ void TaskManager::addSubTask(quint16 taskid, QString description)
 		return;
 
 	SubTask *s = new SubTask();
+	s->setId(++m_maxSubTaskId);
 	s->setDescription(description);
 	s->setParentId(taskid);
 	s->setCreatedOn(QDate::currentDate());
@@ -221,10 +247,17 @@ void TaskManager::stepSubTask(quint16 id)
 	SubTask *s = m_subTasks[id];
 	if(!s)
 		return;
+
+	Task *t = m_tasks[s->parentId()];
+	if(!t)
+		return;
+
 	if(!m_db->stepSubTask(s))
 		return;
 
+	s->setStatus(SubTask::COMPLETED);
 	s->setUpdatedOn(QDate::currentDate());
+	t->stepSubTask(s);
 	emit subTaskStepped(s);
 }
 
@@ -243,6 +276,16 @@ void TaskManager::deleteSubTask(quint16 id)
 
 	t->removeSubTask(s);
 	m_subTasks.remove(s->id());
+
+	if(s->id() == m_maxSubTaskId)
+	{
+		m_maxSubTaskId = 0;
+		foreach (SubTask *s, m_subTasks.values()) {
+			if(s->id() > m_maxSubTaskId)
+				m_maxSubTaskId = t->id();
+		}
+	}
+
 	m_deletedSubTasks.push_back(s);
 	emit subTaskDeleted(s);
 }
