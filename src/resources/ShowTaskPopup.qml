@@ -93,7 +93,7 @@ Popup { id: item
 
 						TaskProgress {
 							anchors.centerIn: parent
-							progress: 100//item.progress
+							progress: 70//item.progress
 							height: parent.height - 20
 							width: parent.width - 20
 						}
@@ -154,6 +154,67 @@ Popup { id: item
 
 					}
 				}
+				Rectangle { id: subTaskDetail
+					color: item.pallete//"#f7f7f7"
+					width: parent.width
+					height: parent.height
+					visible: false
+					anchors.centerIn: parent
+					clip: true
+
+					property string desc
+					property int status: 1
+					property string createdon
+					property string updatedon
+
+					Column {
+						anchors.fill: parent
+						Item {
+							width: parent.width
+							height: 40
+							Text {
+								color: "#f6f6f6"
+								font.pixelSize: 12
+								text: subTaskDetail.status == 1 ? subTaskDetail.createdon : subTaskDetail.createdon + " - " + subTaskDetail.updatedon
+								anchors.centerIn: parent
+								width: parent.width - 20
+							}
+						}
+						Item {
+							width: parent.width
+							height: 40
+							Text {
+								color: "#f6f6f6"
+								font.pixelSize: 12
+								text: subTaskDetail.status == 1 ? "Status : PENDING" : "Status : COMPLETED"
+								anchors.centerIn: parent
+								width: parent.width - 20
+							}
+						}
+						Item {
+							width: parent.width
+							height: parent.height - 80
+							Text {
+								color: "#f6f6f6"
+								font.pixelSize: 16
+								text: subTaskDetail.desc
+								width: parent.width - 20
+								height: parent.height - 20
+								anchors.centerIn: parent
+								wrapMode: Text.WordWrap
+							}
+						}
+					}
+
+					IPCButton {
+						icon: qsTr("\uf00d")
+						shadow: false
+						radius: 0
+						onClicked: subTaskDetail.visible = false
+						anchors.right: parent.right
+						anchors.top: parent.top
+					}
+				}
 			}
 
 			Rectangle { id: subTaskShow
@@ -183,7 +244,7 @@ Popup { id: item
 							}
 							Item {
 								height: parent.height
-								width: parent.width - 85
+								width: _ST_status == 2 ? parent.width - 45 : parent.width - 85
 								Text {
 									font.pixelSize: 14
 									width: parent.width - 20
@@ -193,9 +254,18 @@ Popup { id: item
 								}
 								MouseArea {
 									anchors.fill: parent
+									cursorShape: Qt.PointingHandCursor
+									onClicked: {
+										subTaskDetail.desc = _ST_description
+										subTaskDetail.status = _ST_status
+										subTaskDetail.createdon = _ST_createdon
+										subTaskDetail.updatedon = _ST_updatedon
+										subTaskDetail.visible = true
+									}
 								}
 							}
 							IPCButton {
+								visible: _ST_status != 2
 								height: parent.height
 								width: 40
 								radius: 0
@@ -221,6 +291,5 @@ Popup { id: item
 			}
 
 		}
-
 	}
 }
