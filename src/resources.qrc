@@ -3,6 +3,8 @@
         <file>resources/Main.qml</file>
         <file>resources/AppControls.qml</file>
         <file>resources/CreateTaskPopup.qml</file>
+        <file>resources/ShowTaskPopup.qml</file>
+        <file>resources/TaskProgress.qml</file>
         <file>resources/IPCButton.qml</file>
         <file>resources/StatusBar.qml</file>
         <file>resources/fontawesome-webfont.ttf</file>
