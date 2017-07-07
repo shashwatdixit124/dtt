@@ -65,7 +65,7 @@ void SubTaskList::add(SubTask *st)
 {
 	if(st->status() != SubTask::PENDING)
 		return;
-	beginInsertRows(QModelIndex(), rowCount() , rowCount());
+	beginInsertRows(QModelIndex(), 0 , 0);
 	m_subTasks.push_front(st);
 	endInsertRows();
 }
