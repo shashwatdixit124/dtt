@@ -65,6 +65,7 @@ public:
 	SubTaskList* list();
 
 	void addSubTask(SubTask*);
+	void stepSubTask(SubTask *);
 	void removeSubTask(SubTask*);
 
 	void print();

@@ -215,18 +215,17 @@ bool DBManager::stepSubTask(SubTask *s)
 
 	QSqlQuery query(*m_db);
 
-	QString q = "UPDATE Tasks SET updatedon = :updatedon , status = :status WHERE rowid = :id" ;
+	QString q = "UPDATE SubTasks SET updatedon = :updatedon , status = :status WHERE rowid = :id" ;
 	query.prepare(q);
 	query.bindValue(":id",s->id());
 	query.bindValue(":updatedon",QDate::currentDate().toString("yyyy-MM-dd"));
 	query.bindValue(":status",SubTask::COMPLETED);
 	if(!query.exec())
 	{
-		qDebug() << this << "cannot update task" ;
+		qDebug() << this << "cannot update sub task" ;
 		qDebug() << "ERROR : " << m_db->lastError().text();
 		return false;
 	}
-	s->setStatus(SubTask::COMPLETED);
 	return true;
 }
 
@@ -288,7 +287,7 @@ bool DBManager::createDatabase()
 	}
 
 	QSqlQuery query(db);
-	QString q = "CREATE TABLE Tasks (title VARCHAR(50) NOT NULL, description TEXT, score INTEGER NOT NULL, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER)";
+	QString q = "CREATE TABLE Tasks (title TEXT NOT NULL, description TEXT, score INTEGER NOT NULL, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER)";
 
 	if(!query.exec(q))
 	{

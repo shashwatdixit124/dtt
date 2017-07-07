@@ -24,6 +24,7 @@
 
 #include <QObject>
 #include <QDate>
+#include <QDebug>
 
 Task::Task() : m_status(INVALID) , m_createdOn(QDate::currentDate()) , m_updatedOn(QDate()) , m_list(new SubTaskList())
 {
@@ -130,6 +131,14 @@ void Task::addSubTask(SubTask *st)
 		return;
 
 	m_list->add(st);
+}
+
+void Task::stepSubTask(SubTask *st)
+{
+	if(st->parentId() != id())
+		return;
+
+	m_list->update(st);
 }
 
 void Task::removeSubTask(SubTask *st)

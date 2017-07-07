@@ -63,8 +63,9 @@ int SubTaskList::rowCount(const QModelIndex& parent) const
 
 void SubTaskList::add(SubTask *st)
 {
-	if(st->status() != SubTask::PENDING)
+	if(st->status() == SubTask::INVALID)
 		return;
+
 	beginInsertRows(QModelIndex(), 0 , 0);
 	m_subTasks.push_front(st);
 	endInsertRows();
@@ -72,7 +73,7 @@ void SubTaskList::add(SubTask *st)
 
 void SubTaskList::update(SubTask *st)
 {
-	if(st->status() != SubTask::PENDING)
+	if(st->status() != SubTask::COMPLETED)
 		return;
 
 	for(int i = 0;i<rowCount();i++)
@@ -90,8 +91,9 @@ void SubTaskList::update(SubTask *st)
 
 void SubTaskList::remove(SubTask *st)
 {
-	if(st->status() != SubTask::INVALID)
+	if(st->status() == SubTask::INVALID)
 		return;
+
 	for(int i = 0;i<rowCount();i++)
 	{
 		SubTask *temp = m_subTasks[i];
