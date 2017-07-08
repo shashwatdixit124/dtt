@@ -39,6 +39,7 @@ Popup { id: item
 		subTaskDetail.visible = false
 		subTaskDetail.id = -1
 		subTaskDetail.color = "#f5f5f5"
+		subTaskDetail.textcolor = "transparent"
 		open()
 	}
 
@@ -174,6 +175,7 @@ Popup { id: item
 					clip: true
 
 					property int id: -1
+					property string textcolor: "transparent"
 					property string desc
 					property int status: 1
 					property string createdon
@@ -182,7 +184,7 @@ Popup { id: item
 					IPCButton {
 						icon: qsTr("\uf00d")
 						color: subTaskDetail.color
-						textColor: "#f9f9f9"
+						textColor: subTaskDetail.textcolor
 						height: 40
 						width: 40
 						shadow: false
@@ -197,14 +199,17 @@ Popup { id: item
 					}
 
 					Column {
-						width: parent.width
+						width: parent.width - 40
 						height: parent.height - 40
+						anchors.horizontalCenter: parent.horizontalCenter
 						anchors.bottom: parent.bottom
-						Item {
+						Rectangle {
 							width: parent.width
 							height: 40
+							color: subTaskDetail.textcolor
+							radius: height/2
 							Text {
-								color: "#f9f9f9"
+								color: subTaskDetail.color
 								font.pixelSize: 12
 								text: subTaskDetail.status == 1 ? subTaskDetail.createdon : subTaskDetail.createdon + " - " + subTaskDetail.updatedon
 								anchors.centerIn: parent
@@ -213,26 +218,26 @@ Popup { id: item
 						}
 						Item {
 							width: parent.width
-							height: 40
-							Text {
-								color: "#f9f9f9"
-								font.pixelSize: 12
-								text: subTaskDetail.status == 1 ? "Status : PENDING" : "Status : COMPLETED"
-								anchors.centerIn: parent
-								width: parent.width - 20
-							}
-						}
-						Item {
-							width: parent.width
 							height: parent.height - 80
 							Text {
-								color: "#f9f9f9"
+								color: subTaskDetail.textcolor
 								font.pixelSize: 16
 								text: subTaskDetail.desc
 								width: parent.width - 20
 								height: parent.height - 20
 								anchors.centerIn: parent
 								wrapMode: Text.WordWrap
+							}
+						}						
+						Item {
+							width: parent.width
+							height: 40
+							Text {
+								color: subTaskDetail.textcolor
+								font.pixelSize: 12
+								text: subTaskDetail.status == 1 ? "Status : PENDING" : "Status : COMPLETED"
+								anchors.centerIn: parent
+								width: parent.width - 20
 							}
 						}
 					}
@@ -276,7 +281,8 @@ Popup { id: item
 										width: height
 										radius: width/2
 										anchors.right: parent.right
-										color: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#2980b9" : _ST_status == 0 ? "#333" : "#27ae60" : "transparent"
+										property string textcolor: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#555" : _ST_status == 0 ? "#fff" : "#f9f9f9" : "transparent"
+										color: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#f5f5f5" : _ST_status == 0 ? "#333" : "#27ae60" : "transparent"
 									}
 								}
 								Item {
@@ -293,7 +299,8 @@ Popup { id: item
 										anchors.fill: parent
 										cursorShape: Qt.PointingHandCursor
 										onClicked: {
-											subTaskDetail.id = _ST_id
+											subTaskDetail.id = _ST_id											
+											subTaskDetail.textcolor = statuscolor.textcolor
 											subTaskDetail.color = statuscolor.color
 											subTaskDetail.desc = _ST_description
 											subTaskDetail.status = _ST_status
@@ -312,7 +319,11 @@ Popup { id: item
 									icon: qsTr("\uf00c")
 									color: "#fff"
 									textColor: "#555"
-									onClicked: Dtt.stepSubTask(_ST_id)
+									onClicked: {
+										subTaskDetail.id = -1
+										subTaskDetail.visible = false
+										Dtt.stepSubTask(_ST_id)
+									}
 								}
 								IPCButton {
 									height: parent.height
@@ -322,7 +333,11 @@ Popup { id: item
 									icon: qsTr("\uf1f8")
 									color: "#fff"
 									textColor: "#555"
-									onClicked: Dtt.deleteSubTask(_ST_id)
+									onClicked: {
+										subTaskDetail.id = -1
+										subTaskDetail.visible = false
+										Dtt.deleteSubTask(_ST_id)
+									}
 								}
 							}
 						}
@@ -336,7 +351,6 @@ Popup { id: item
 						color: "#bbb"
 						anchors.centerIn: parent
 					}
-
 				}
 			}
 
