@@ -4,8 +4,6 @@ set(dtt_SRS
 	task.cpp
 	taskmanager.cpp
 	pendingtasks.cpp
-	wiptasks.cpp
-	completedtasks.cpp
 	subtask.cpp
 	subtasklist.cpp
 )

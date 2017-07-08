@@ -39,8 +39,6 @@ class TaskManager : public QObject
 {
 	Q_OBJECT
 	Q_PROPERTY(QAbstractListModel* pendingTasks READ pendingTasks CONSTANT)
-	Q_PROPERTY(QAbstractListModel* wipTasks READ wipTasks CONSTANT)
-	Q_PROPERTY(QAbstractListModel* completedTasks READ completedTasks CONSTANT)
 	Q_PROPERTY(quint16 currentTask READ currentTask WRITE setCurrentTask NOTIFY currentTaskChanged)
 	Q_PROPERTY(QAbstractListModel* subTasks READ subTasks CONSTANT)
 	Q_PROPERTY(int maxYValue READ maxYValue CONSTANT)
@@ -51,8 +49,6 @@ public:
 	~TaskManager();
 
 	QAbstractListModel* pendingTasks();
-	QAbstractListModel* wipTasks();
-	QAbstractListModel* completedTasks();
 	QAbstractListModel* subTasks();
 
 	quint16 currentTask();
@@ -97,8 +93,6 @@ protected Q_SLOTS:
 private:
 	DBManager* m_db;
 	PendingTasks* m_pending;
-	WipTasks* m_wip;
-	CompletedTasks* m_completed;
 
 	quint16 m_currTask;
 	QMap<quint16, Task*> m_tasks;

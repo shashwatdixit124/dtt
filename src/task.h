@@ -38,7 +38,6 @@ public:
 
 	enum Status {
 		PENDING,
-		WIP,
 		COMPLETED,
 		INVALID
 	};

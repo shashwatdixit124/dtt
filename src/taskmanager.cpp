@@ -23,8 +23,6 @@
 #include "subtasklist.h"
 #include "dbmanager.h"
 #include "pendingtasks.h"
-#include "wiptasks.h"
-#include "completedtasks.h"
 
 #include <QObject>
 #include <QList>
@@ -40,6 +38,7 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 		if(t->id() > m_maxTaskId)
 			m_maxTaskId = t->id();
 		m_tasks.insert(t->id(),t);
+		t->print();
 	}
 
 	QList<SubTask*> subTasks = m_db->subTasks();
@@ -51,8 +50,6 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 	}
 
 	m_pending = new PendingTasks(this);
-	m_wip = new WipTasks(this);
-	m_completed = new CompletedTasks(this);
 
 	for(int i = 0;i<7;i++)
 	{
@@ -65,8 +62,6 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 TaskManager::~TaskManager()
 {
 	m_pending->deleteLater();
-	m_wip->deleteLater();
-	m_completed->deleteLater();
 
 	foreach (SubTask * s, m_deletedSubTasks) {
 		delete s;
@@ -112,16 +107,6 @@ QAbstractListModel* TaskManager::subTasks()
 QAbstractListModel * TaskManager::pendingTasks()
 {
 	return m_pending;
-}
-
-QAbstractListModel * TaskManager::wipTasks()
-{
-	return m_wip;
-}
-
-QAbstractListModel * TaskManager::completedTasks()
-{
-	return m_completed;
 }
 
 int TaskManager::maxYValue()
@@ -230,7 +215,9 @@ void TaskManager::stepTask(quint16 id)
 		return;
 
 	t->setUpdatedOn(QDate::currentDate());
+	t->setStatus(Task::COMPLETED);
 	emit taskStepped(t);
+	qDebug() << "****";
 	load7day();
 }
 
@@ -289,6 +276,7 @@ void TaskManager::addSubTask(quint16 taskid, QString description)
 
 	t->addSubTask(s);
 	m_subTasks.insert(s->id(),s);
+	emit taskStepped(t);
 	emit subTaskListUpdated();
 	load7day();
 }
@@ -309,6 +297,7 @@ void TaskManager::stepSubTask(quint16 id)
 	s->setStatus(SubTask::COMPLETED);
 	s->setUpdatedOn(QDate::currentDate());
 	t->stepSubTask(s);
+	emit taskStepped(t);
 	emit subTaskListUpdated();
 	load7day();
 }
@@ -339,6 +328,7 @@ void TaskManager::deleteSubTask(quint16 id)
 	}
 
 	m_deletedSubTasks.push_back(s);
+	emit taskStepped(t);
 	emit subTaskListUpdated();
 	load7day();
 }

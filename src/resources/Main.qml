@@ -262,7 +262,7 @@ ApplicationWindow { id: root
 			width: parent.width
 			height: !visible ? 0 : titleBlk.height + descBlk.height + scoreandtagBlk.height + createdonBlk.height + 40 + 20
 			Rectangle {
-				border.color: _T_status == 2 ? "#555" : _T_progress == 100 ? "#27ae60" : "#ccc"
+				border.color: _T_status == 1 ? "#555" : _T_progress == 100 ? "#27ae60" : "#ccc"
 				radius: 3
 				width: parent.width
 				height: parent.height - 20

@@ -30,7 +30,7 @@ PendingTasks::PendingTasks(TaskManager *parent) : QAbstractListModel(parent)
 {
 	foreach(Task *t, parent->tasks())
 	{
-		if(t->status() == Task::PENDING)
+		if(t->status() != Task::INVALID)
 			m_tasks.push_front(t);
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
@@ -76,7 +76,7 @@ int PendingTasks::rowCount(const QModelIndex& parent) const
 
 void PendingTasks::updateAdd(Task *t)
 {
-	if(t->status() != Task::PENDING)
+	if(t->status() == Task::INVALID)
 		return;
 	beginInsertRows(QModelIndex(), 0 , 0);
 	m_tasks.push_front(t);
@@ -85,15 +85,16 @@ void PendingTasks::updateAdd(Task *t)
 
 void PendingTasks::updateStep(Task *t)
 {
-	if(t->status() != Task::WIP)
+	if(t->status() == Task::INVALID)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
 		Task *tt = m_tasks[i];
 		if(tt->id() == t->id()) {
-			m_tasks.removeAt(i);
 			beginRemoveRows(QModelIndex(), i , i);
 			endRemoveRows();
+			beginInsertRows(QModelIndex(), i , i);
+			endInsertRows();
 			break;
 		}
 	}
@@ -101,7 +102,7 @@ void PendingTasks::updateStep(Task *t)
 
 void PendingTasks::updateDelete(Task *t)
 {
-	if(t->status() != Task::PENDING)
+	if(t->status() == Task::INVALID)
 		return;
 	for(int i = 0;i<rowCount();i++)
 	{
