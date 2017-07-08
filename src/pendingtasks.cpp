@@ -55,8 +55,8 @@ QVariant PendingTasks::data(const QModelIndex& index, int role) const
 		return t->title();
 	else if(role == DESCRIPTION)
 		return t->description();
-	else if(role == SCORE)
-		return t->score();
+	else if(role == PROGRESS)
+		return t->progress();
 	else if(role == TAG)
 		return t->tag();
 	else if(role == CREATEDON)
@@ -121,7 +121,7 @@ QHash<int, QByteArray> PendingTasks::roleNames() const
 	roles[ID] = "_T_id";
 	roles[TITLE] = "_T_title";
 	roles[DESCRIPTION] = "_T_description";
-	roles[SCORE] = "_T_score";
+	roles[PROGRESS] = "_T_progress";
 	roles[TAG] = "_T_tag";
 	roles[CREATEDON] = "_T_createdon";
 	roles[UPDATEDON] = "_T_updatedon";

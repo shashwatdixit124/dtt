@@ -48,7 +48,6 @@ Popup { id: item
 
 		Rectangle { id: popupBack
 			anchors.fill: parent
-//			radius: 5
 		}
 		DropShadow {
 			anchors.fill: popupBack
@@ -86,14 +85,19 @@ Popup { id: item
 							width: implicitWidth > parent.width - 20 ? parent.width - 20 : implicitWidth
 						}
 					}
-					Item { id: taskProgress
+					Item {
 						height: 200
 						width: 200
 						anchors.horizontalCenter: parent.horizontalCenter
 
-						TaskProgress {
+						Connections {
+							target: Dtt
+							onSubTaskListUpdated: taskProgress.progress = Dtt.taskProgress(Dtt.currentTask)
+						}
+
+						TaskProgress { id: taskProgress
 							anchors.centerIn: parent
-							progress: 70//item.progress
+							progress: item.progress
 							height: parent.height - 20
 							width: parent.width - 20
 						}

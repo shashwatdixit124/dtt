@@ -47,6 +47,7 @@ Item { id: item
 		anchors.top: parent.top
 		width: parent.width
 		height: (1 - (item.progress * 0.01)) * parent.height
+		Behavior on height { NumberAnimation { duration: 300 ; easing.type : Easing.InCirc } }
 	}
 
 	Rectangle {

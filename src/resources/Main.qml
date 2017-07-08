@@ -213,7 +213,6 @@ ApplicationWindow { id: root
 				yAxis.max = Dtt.maxYValue
 
 				createSeries(LineSeries,"Pending",xAxis,yAxis);
-				createSeries(LineSeries,"WIP",xAxis,yAxis);
 				createSeries(LineSeries,"Completed",xAxis,yAxis);
 
 				series("Pending").color = "#aaa"
@@ -225,16 +224,6 @@ ApplicationWindow { id: root
 				series("Pending").append(5,Dtt.pending7Day[2])
 				series("Pending").append(6,Dtt.pending7Day[1])
 				series("Pending").append(7,Dtt.pending7Day[0])
-
-				series("WIP").color = "#2980b9"
-				series("WIP").pointsVisible = true
-				series("WIP").append(1,Dtt.wip7Day[6])
-				series("WIP").append(2,Dtt.wip7Day[5])
-				series("WIP").append(3,Dtt.wip7Day[4])
-				series("WIP").append(4,Dtt.wip7Day[3])
-				series("WIP").append(5,Dtt.wip7Day[2])
-				series("WIP").append(6,Dtt.wip7Day[1])
-				series("WIP").append(7,Dtt.wip7Day[0])
 
 				series("Completed").color = "#27ae60"
 				series("Completed").pointsVisible = true
@@ -284,9 +273,9 @@ ApplicationWindow { id: root
 				cursorShape: Qt.PointingHandCursor
 				onClicked: {
 					Dtt.currentTask = _T_id
-					console.log()
 					showTaskPopup.taskid = _T_id
 					showTaskPopup.title = _T_title
+					showTaskPopup.progress = _T_progress
 					showTaskPopup.show()
 				}
 			}
@@ -352,39 +341,22 @@ ApplicationWindow { id: root
 			}
 			Item { id: scoreandtagBlk
 				width: parent.width
-				height: scoreBlk.height
+				height: tagBlk.height
 				anchors.top: descBlk.bottom
 				anchors.topMargin: 10
-				Row {
-					width: parent.width - 20
-					height: 20
-					anchors.centerIn: parent
-					spacing: 10
-					Rectangle { id: scoreBlk
-						color: "#F9BF3B"
-						width: score.implicitWidth + 20
-						height: parent.height
-						Text { id: score
-							text: _T_score
-							width: parent.width - 20
-							font.pixelSize: taskViewGrid.descFontSize
-							font.weight: Font.Light
-							wrapMode: Text.WordWrap
-							anchors.centerIn: parent
-						}
-					}
-					Rectangle { id: tagBlk
-						color: "#e7e7e7"
-						width: tag.text != "" ? tag.implicitWidth + 20 : 0
-						height: parent.height
-						Text { id: tag
-							text: _T_tag != "" ? qsTr("\uf02b  ") + _T_tag : ""
-							width: parent.width - 20
-							font.pixelSize: taskViewGrid.descFontSize
-							anchors.centerIn: parent
-							font.weight: Font.Light
-							wrapMode: Text.WordWrap
-						}
+				Rectangle { id: tagBlk
+					color: "#e7e7e7"
+					width: tag.text != "" ? tag.implicitWidth + 20 : 0
+					height: width == 0 ? 0 : 20
+					anchors.left: parent.left
+					anchors.leftMargin: 10
+					Text { id: tag
+						text: _T_tag != "" ? qsTr("\uf02b  ") + _T_tag : ""
+						width: parent.width - 20
+						font.pixelSize: taskViewGrid.descFontSize
+						anchors.centerIn: parent
+						font.weight: Font.Light
+						wrapMode: Text.WordWrap
 					}
 				}
 			}

@@ -50,11 +50,6 @@ QString Task::description() const
 	return m_description;
 }
 
-quint16 Task::score() const
-{
-	return m_score;
-}
-
 QString Task::tag() const
 {
 	return m_tag;
@@ -75,6 +70,27 @@ Task::Status Task::status() const
 	return m_status;
 }
 
+quint8 Task::progress() const
+{
+	QList<SubTask*> subtasks = subTasks();
+	quint16 nOT = subtasks.count();
+	if(nOT == 0) {
+		if(status() == Task::COMPLETED)
+			return 100;
+		else
+			return 0;
+	}
+	else {
+		quint16 compTasks = 0;
+		foreach (SubTask *s , subtasks) {
+			if(s->status() == SubTask::COMPLETED)
+				compTasks++;
+		}
+		quint8 prog = (compTasks * 100 ) / nOT;
+		return prog;
+	}
+}
+
 void Task::setId(quint16 id)
 {
 	m_id = id;
@@ -88,11 +104,6 @@ void Task::setTitle(QString title)
 void Task::setDescription(QString desc)
 {
 	m_description = desc;
-}
-
-void Task::setScore(quint16 score)
-{
-	m_score = score;
 }
 
 void Task::setTag(QString tag)
@@ -154,7 +165,7 @@ void Task::print()
 	qDebug() << "___ Task No " << id() << " ___" ;
 	qDebug() << " Title : " << title();
 	qDebug() << " Description : " << description();
-	qDebug() << " Score : " << score();
+	qDebug() << " progress : " << progress();
 	qDebug() << " Tag : " << tag();
 	qDebug() << " Created On : " << createdOn();
 	qDebug() << " Updated On : " << updatedOn();

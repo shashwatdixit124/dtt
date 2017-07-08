@@ -46,16 +46,15 @@ public:
 	quint16 id() const;
 	QString title() const;
 	QString description() const;
-	quint16 score() const;
 	QString tag() const;
 	QDate createdOn() const;
 	QDate updatedOn() const;
 	Status status() const;
+	quint8 progress() const;
 
 	void setId(quint16);
 	void setTitle(QString);
 	void setDescription(QString);
-	void setScore(quint16);
 	void setTag(QString);
 	void setCreatedOn(QDate);
 	void setUpdatedOn(QDate);
@@ -74,7 +73,6 @@ protected:
 	quint16 m_id;
 	QString m_title;
 	QString m_description;
-	quint16 m_score;
 	QString m_tag;
 	QDate m_createdOn;
 	QDate m_updatedOn;

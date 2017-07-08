@@ -24,7 +24,7 @@ import QtGraphicalEffects 1.0
 import api.dtt 1.0
 
 Popup { id: item
-	height: 290
+	height: 240
 	width: 500
 	x: (parent.width - width)/2
 	y: (parent.height - height)/2
@@ -91,20 +91,6 @@ Popup { id: item
 					border.width: parent.activeFocus ? 2 : 0
 				}
 			}
-			TextField { id: taskScore
-				height: 40
-				width: parent.width
-				font.pixelSize: activeFocus ? 16 : 14
-				placeholderText: qsTr(" Score between 0 and 10")
-				validator: IntValidator{bottom: 0; top: 10;}
-				background: Rectangle {
-					implicitHeight: 40
-					implicitWidth: 400
-					color: parent.activeFocus ? "transparent" : "#f6f6f6"
-					border.color: item.pallete
-					border.width: parent.activeFocus ? 2 : 0
-				}
-			}
 			TextField { id: taskTag
 				height: 40
 				width: parent.width
@@ -131,10 +117,9 @@ Popup { id: item
 					onClicked: {
 						if(taskTitle.text != "")
 						{
-							Dtt.addTask(taskTitle.text,taskDescription.text,taskScore.text,taskTag.text)
+							Dtt.addTask(taskTitle.text,taskDescription.text,taskTag.text)
 							taskTitle.text = ""
 							taskDescription.text = ""
-							taskScore.text = ""
 							taskTag.text = ""
 							close()
 						}
@@ -149,7 +134,6 @@ Popup { id: item
 					onClicked:{
 						taskTitle.text = ""
 						taskDescription.text = ""
-						taskScore.text = ""
 						taskTag.text = ""
 						close()
 					}

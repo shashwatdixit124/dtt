@@ -45,7 +45,6 @@ class TaskManager : public QObject
 	Q_PROPERTY(QAbstractListModel* subTasks READ subTasks CONSTANT)
 	Q_PROPERTY(int maxYValue READ maxYValue CONSTANT)
 	Q_PROPERTY(QList<int> pending7Day READ pending7Day CONSTANT)
-	Q_PROPERTY(QList<int> wip7Day READ wip7Day CONSTANT)
 	Q_PROPERTY(QList<int> completed7Day READ completed7Day CONSTANT)
 public:
 	explicit TaskManager(QObject* parent = nullptr);
@@ -61,12 +60,11 @@ public:
 
 	int maxYValue();
 	QList<int> pending7Day();
-	QList<int> wip7Day();
 	QList<int> completed7Day();
 
 	QList<Task*> tasks();
 
-	Q_INVOKABLE void addTask(QString,QString,quint16,QString);
+	Q_INVOKABLE void addTask(QString,QString,QString);
 	Q_INVOKABLE void stepTask(quint16);
 	Q_INVOKABLE void deleteTask(quint16);
 
@@ -74,15 +72,21 @@ public:
 	Q_INVOKABLE void stepSubTask(quint16);
 	Q_INVOKABLE void deleteSubTask(quint16);
 
+	Q_INVOKABLE QString taskTitle(quint16);
+	Q_INVOKABLE QString taskDescription(quint16);
+	Q_INVOKABLE QString taskTag(quint16);
+	Q_INVOKABLE quint16 taskProgress(quint16);
+	Q_INVOKABLE QString taskCreatedOn(quint16);
+	Q_INVOKABLE QString taskUpdatedOn(quint16);
+	Q_INVOKABLE int taskStatus(quint16);
+
 	static QObject* taskmanager_singleton(QQmlEngine *engine, QJSEngine *scriptEngine);
 
 Q_SIGNALS:
 	void taskAdded(Task*);
 	void taskStepped(Task *);
 	void taskDeleted(Task *);
-	void subTaskAdded(SubTask *);
-	void subTaskStepped(SubTask *);
-	void subTaskDeleted(SubTask *);
+	void subTaskListUpdated();
 
 	void updateGraph();
 	void currentTaskChanged();
@@ -106,7 +110,6 @@ private:
 
 	int m_maxYValue;
 	QList<int> m_pending7Day;
-	QList<int> m_wip7Day;
 	QList<int> m_completed7Day;
 
 };

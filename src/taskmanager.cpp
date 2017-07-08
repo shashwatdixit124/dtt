@@ -57,7 +57,6 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 	for(int i = 0;i<7;i++)
 	{
 		m_pending7Day.push_back(0);
-		m_wip7Day.push_back(0);
 		m_completed7Day.push_back(0);
 	}
 	load7day();
@@ -135,11 +134,6 @@ QList<int> TaskManager::pending7Day()
 	return m_pending7Day;
 }
 
-QList<int> TaskManager::wip7Day()
-{
-	return m_wip7Day;
-}
-
 QList<int> TaskManager::completed7Day()
 {
 	return m_completed7Day;
@@ -150,7 +144,64 @@ QList<Task *> TaskManager::tasks()
 	return m_tasks.values();
 }
 
-void TaskManager::addTask(QString title, QString desc, quint16 score, QString tag)
+
+QString TaskManager::taskTitle(quint16 id)
+{
+	Task *t = m_tasks.value(id);
+	if(!t)
+		return QString();
+	return t->title();
+}
+
+QString TaskManager::taskDescription(quint16 id)
+{
+	Task *t = m_tasks.value(id);
+	if(!t)
+		return QString();
+	return t->description();
+}
+
+QString TaskManager::taskTag(quint16 id)
+{
+	Task *t = m_tasks.value(id);
+	if(!t)
+		return QString();
+	return t->tag();
+}
+
+quint16 TaskManager::taskProgress(quint16 id)
+{
+	Task *t = m_tasks.value(id);
+	if(!t)
+		return 0;
+	return t->progress();
+}
+
+QString TaskManager::taskCreatedOn(quint16 id)
+{
+	Task *t = m_tasks.value(id);
+	if(!t)
+		return QString();
+	return t->createdOn().toString("MMM dd");
+}
+
+QString TaskManager::taskUpdatedOn(quint16 id)
+{
+	Task *t = m_tasks.value(id);
+	if(!t)
+		return QString();
+	return t->updatedOn().toString("MMM dd");
+}
+
+int TaskManager::taskStatus(quint16 id)
+{
+	Task *t = m_tasks.value(id);
+	if(!t)
+		return 3;
+	return t->status();
+}
+
+void TaskManager::addTask(QString title, QString desc, QString tag)
 {
 	if(title.isEmpty())
 		return;
@@ -158,7 +209,6 @@ void TaskManager::addTask(QString title, QString desc, quint16 score, QString ta
 	t->setId(++m_maxTaskId);
 	t->setTitle(title);
 	t->setDescription(desc);
-	t->setScore(score);
 	t->setTag(tag);
 	t->setCreatedOn(QDate::currentDate());
 	t->setUpdatedOn(QDate());
@@ -239,7 +289,8 @@ void TaskManager::addSubTask(quint16 taskid, QString description)
 
 	t->addSubTask(s);
 	m_subTasks.insert(s->id(),s);
-	emit subTaskAdded(s);
+	emit subTaskListUpdated();
+	load7day();
 }
 
 void TaskManager::stepSubTask(quint16 id)
@@ -258,7 +309,8 @@ void TaskManager::stepSubTask(quint16 id)
 	s->setStatus(SubTask::COMPLETED);
 	s->setUpdatedOn(QDate::currentDate());
 	t->stepSubTask(s);
-	emit subTaskStepped(s);
+	emit subTaskListUpdated();
+	load7day();
 }
 
 void TaskManager::deleteSubTask(quint16 id)
@@ -287,7 +339,8 @@ void TaskManager::deleteSubTask(quint16 id)
 	}
 
 	m_deletedSubTasks.push_back(s);
-	emit subTaskDeleted(s);
+	emit subTaskListUpdated();
+	load7day();
 }
 
 void TaskManager::load7day()
@@ -298,29 +351,46 @@ void TaskManager::load7day()
 	for(int i = 0;i<7;i++)
 	{
 		m_pending7Day[i] = 0;
-		m_wip7Day[i] = 0;
 		m_completed7Day[i] = 0;
 	}
 	foreach (Task *t, allTasks) {
-		int i = t->createdOn().daysTo(today);
-		int j = t->updatedOn().daysTo(today);
-		if(i < 7 && t->status() == Task::PENDING)
-		{
-			m_pending7Day[i] += t->score();
-			if(m_pending7Day[i] > m_maxYValue)
-				m_maxYValue = m_pending7Day[i];
-		}
-		if(j < 7)
-		{
-			if(t->status() == Task::WIP) {
-				m_wip7Day[j] += t->score();
-				if(m_wip7Day[j] > m_maxYValue)
-					m_maxYValue = m_wip7Day[j];
+		QList<SubTask*> subTasks = t->subTasks();
+		if(subTasks.count() > 0) {
+			foreach (SubTask* s, subTasks) {
+				int i = s->createdOn().daysTo(today);
+				int j = s->updatedOn().daysTo(today);
+				if(i < 7)
+				{
+					m_pending7Day[i] += 1;
+					if(m_pending7Day[i] > m_maxYValue)
+						m_maxYValue = m_pending7Day[i];
+				}
+				if(j < 7)
+				{
+					if(s->status() == SubTask::COMPLETED) {
+						m_completed7Day[j] += 1;
+						if(m_completed7Day[j] > m_maxYValue)
+							m_maxYValue = m_completed7Day[j];
+					}
+				}
 			}
-			else if(t->status() == Task::COMPLETED) {
-				m_completed7Day[j] += t->score();
-				if(m_completed7Day[j] > m_maxYValue)
-					m_maxYValue = m_completed7Day[j];
+		}
+		else {
+			int i = t->createdOn().daysTo(today);
+			int j = t->updatedOn().daysTo(today);
+			if(i < 7)
+			{
+				m_pending7Day[i] += 1;
+				if(m_pending7Day[i] > m_maxYValue)
+					m_maxYValue = m_pending7Day[i];
+			}
+			if(j < 7)
+			{
+				if(t->status() == Task::COMPLETED) {
+					m_completed7Day[j] += 1;
+					if(m_completed7Day[j] > m_maxYValue)
+						m_maxYValue = m_completed7Day[j];
+				}
 			}
 		}
 	}

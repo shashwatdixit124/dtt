@@ -76,11 +76,10 @@ QList<Task *> DBManager::tasks()
 		t->setId(row);
 		t->setTitle(query.value(1).toString());
 		t->setDescription(query.value(2).toString());
-		t->setScore(query.value(3).toInt());
-		t->setTag(query.value(4).toString());
-		t->setCreatedOn(query.value(5).toDate());
-		t->setUpdatedOn(query.value(6).toDate());
-		t->setStatus(Task::Status(query.value(7).toInt()));
+		t->setTag(query.value(3).toString());
+		t->setCreatedOn(query.value(4).toDate());
+		t->setUpdatedOn(query.value(5).toDate());
+		t->setStatus(Task::Status(query.value(6).toInt()));
 		tasks.push_back(t);
 	}
 	return tasks;
@@ -120,11 +119,10 @@ bool DBManager::addTask(Task * t)
 		return false;
 
 	QSqlQuery query(*m_db);
-	QString q = "INSERT INTO Tasks Values (:title , :description , :score , :tag , :createdon , :updatedon , :status)" ;
+	QString q = "INSERT INTO Tasks Values (:title , :description , :tag , :createdon , :updatedon , :status)" ;
 	query.prepare(q);
 	query.bindValue(":title",t->title());
 	query.bindValue(":description",t->description());
-	query.bindValue(":score",t->score());
 	query.bindValue(":tag",t->tag());
 	query.bindValue(":createdon",t->createdOn().toString("yyyy-MM-dd"));
 	query.bindValue(":updatedon",t->updatedOn().toString("yyyy-MM-dd"));
@@ -287,7 +285,7 @@ bool DBManager::createDatabase()
 	}
 
 	QSqlQuery query(db);
-	QString q = "CREATE TABLE Tasks (title TEXT NOT NULL, description TEXT, score INTEGER NOT NULL, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER)";
+	QString q = "CREATE TABLE Tasks (title TEXT NOT NULL, description TEXT, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER)";
 
 	if(!query.exec(q))
 	{

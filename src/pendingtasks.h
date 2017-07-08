@@ -36,7 +36,7 @@ public:
 		ID  = Qt::UserRole + 1,
 		TITLE,
 		DESCRIPTION,
-		SCORE,
+		PROGRESS,
 		TAG,
 		CREATEDON,
 		UPDATEDON,
