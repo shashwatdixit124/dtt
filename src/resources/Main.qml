@@ -19,7 +19,7 @@
  */
 
 import QtQuick 2.7
-import QtQuick.Controls 2.0
+import QtQuick.Controls 2.1
 import QtQuick.Window 2.0
 import QtGraphicalEffects 1.0
 import QtCharts 2.0
@@ -160,35 +160,30 @@ ApplicationWindow { id: root
 				anchors.margins: spacing
 				spacing: 20
 
-				Item { id: pendingTaskViewer
+				ListView {
+					property int unique: 0
 					width: taskViewGrid.cardWidth
 					height: parent.height
-					ListView { id:pendingTasks
-						anchors.fill: parent
-						model: Dtt.pendingTasks
-						spacing: 20
-						delegate: taskCard
-					}
+					model: Dtt.pendingTasks
+					delegate: taskCard
+					onCurrentIndexChanged: currentIndex = count > 0 ? 0 : -1
+					ScrollBar.vertical: ScrollBar {}
 				}
-				Item { id: wipTaskViewer
+				ListView {
+					property int unique: 1
 					width: taskViewGrid.cardWidth
 					height: parent.height
-					ListView { id:wipTasks
-						anchors.fill: parent
-						model: Dtt.wipTasks
-						spacing: 20
-						delegate: taskCard
-					}
+					model: Dtt.pendingTasks
+					delegate: taskCard
+					ScrollBar.vertical: ScrollBar {}
 				}
-				Item { id: completedTaskViewer
+				ListView {
+					property int unique: 2
 					width: taskViewGrid.cardWidth
 					height: parent.height
-					ListView { id:completedTasks
-						anchors.fill: parent
-						model: Dtt.completedTasks
-						spacing: 20
-						delegate: taskCard
-					}
+					model: Dtt.pendingTasks
+					delegate: taskCard
+					ScrollBar.vertical: ScrollBar {}
 				}
 			}
 		}
@@ -262,142 +257,148 @@ ApplicationWindow { id: root
 	}
 	
 	Component { id: taskCard
-		Rectangle {
-			border.color: _T_status == 0 ? "#ccc" : _T_status == 1 ? "#2980b9" : "#27ae60"
-			radius: 3
+		Item {
+			visible: parent.parent.unique === index%3
 			width: parent.width
-			height: titleBlk.height + descBlk.height + scoreandtagBlk.height + createdonBlk.height +/* updatedonBlk.height*/ + 40
-
-			MouseArea {
-				anchors.fill: parent
-				cursorShape: Qt.PointingHandCursor
-				onClicked: {
-					Dtt.currentTask = _T_id
-					showTaskPopup.taskid = _T_id
-					showTaskPopup.title = _T_title
-					showTaskPopup.progress = _T_progress
-					showTaskPopup.show()
-				}
-			}
-
-			Item { id: titleBlk
-				width: parent.width - 40
-				height: title.text != "" ? title.implicitHeight + 10 : 0
+			height: !visible ? 0 : titleBlk.height + descBlk.height + scoreandtagBlk.height + createdonBlk.height + 40 + 20
+			Rectangle {
+				border.color: _T_status == 0 ? "#ccc" : _T_status == 1 ? "#2980b9" : "#27ae60"
+				radius: 3
+				width: parent.width
+				height: parent.height - 20
 				anchors.top: parent.top
-				anchors.topMargin: 10
-				Text { id: title
-					text: _T_title
-					width: parent.width - 20
-					font.pixelSize: taskViewGrid.titleFontSize
-					anchors.centerIn: parent
-					wrapMode: Text.WordWrap
-				}
-			}
-			Item { id: menu
-				property bool open: false
-				anchors.top: parent.top
-				visible: _T_status != 2
-				anchors.left: titleBlk.right
-				height: 40
-				width: 40
-				Text {
-					font.pixelSize: taskViewGrid.titleFontSize
-					text: qsTr("\uf0c9")
-					anchors.centerIn: parent
-				}
+
 				MouseArea {
 					anchors.fill: parent
 					cursorShape: Qt.PointingHandCursor
-					onClicked: menu.open = !menu.open
+					onClicked: {
+						Dtt.currentTask = _T_id
+						showTaskPopup.taskid = _T_id
+						showTaskPopup.title = _T_title
+						showTaskPopup.progress = _T_progress
+						showTaskPopup.show()
+					}
 				}
-			}
-			Item { id: createdonBlk
-				width: parent.width
-				height: createdon.implicitHeight + 10
-				anchors.top: titleBlk.bottom
-				Text { id: createdon
-					text: _T_status == 2 ? qsTr(_T_createdon + " - " + _T_updatedon) : _T_status == 1 ? _T_updatedon : _T_createdon
-					width: parent.width - 20
-					font.pixelSize: taskViewGrid.dateFontSize
-					font.weight: Font.Light
-					color: "#555"
-					anchors.centerIn: parent
-					wrapMode: Text.WordWrap
-				}
-			}
-			Item { id: descBlk
-				width: parent.width
-				height: desc.text != "" ? desc.implicitHeight + 10 : 0
-				anchors.top: createdonBlk.bottom
-				anchors.topMargin: 10
-				Text { id: desc
-					text: _T_description
-					width: parent.width - 20
-					font.pixelSize: taskViewGrid.descFontSize
-					font.weight: Font.Light
-					anchors.centerIn: parent
-					wrapMode: Text.WordWrap
-				}
-			}
-			Item { id: scoreandtagBlk
-				width: parent.width
-				height: tagBlk.height
-				anchors.top: descBlk.bottom
-				anchors.topMargin: 10
-				Rectangle { id: tagBlk
-					color: "#e7e7e7"
-					width: tag.text != "" ? tag.implicitWidth + 20 : 0
-					height: width == 0 ? 0 : 20
-					anchors.left: parent.left
-					anchors.leftMargin: 10
-					Text { id: tag
-						text: _T_tag != "" ? qsTr("\uf02b  ") + _T_tag : ""
+
+				Item { id: titleBlk
+					width: parent.width - 40
+					height: title.text != "" ? title.implicitHeight + 10 : 0
+					anchors.top: parent.top
+					anchors.topMargin: 10
+					Text { id: title
+						text: _T_title
 						width: parent.width - 20
-						font.pixelSize: taskViewGrid.descFontSize
+						font.pixelSize: taskViewGrid.titleFontSize
 						anchors.centerIn: parent
-						font.weight: Font.Light
 						wrapMode: Text.WordWrap
 					}
 				}
-			}
-			Item {
-				visible: menu.open
-				width: 100 + taskViewGrid.widthFactor*20
-				height: 80 + taskViewGrid.widthFactor*10
-				anchors.right: parent.right
-				anchors.top: menu.bottom
-				Item { id: menuBox
-					anchors.fill: parent
-					IPCButton {
-						icon: qsTr("\uf061")
-						text: qsTr("STEP")
-						textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
-						iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
-						color: "#f4f4f4"
-						textColor: "#555"
-						width: parent.width
-						height: parent.height / 2
-						radius: 0
-						shadow: false
-						anchors.top: parent.top
-						onClicked:{
-							Dtt.stepTask(_T_id)
+				Item { id: menu
+					property bool open: false
+					anchors.top: parent.top
+					visible: _T_status != 2
+					anchors.left: titleBlk.right
+					height: 40
+					width: 40
+					Text {
+						font.pixelSize: taskViewGrid.titleFontSize
+						text: qsTr("\uf0c9")
+						anchors.centerIn: parent
+					}
+					MouseArea {
+						anchors.fill: parent
+						cursorShape: Qt.PointingHandCursor
+						onClicked: menu.open = !menu.open
+					}
+				}
+				Item { id: createdonBlk
+					width: parent.width
+					height: createdon.implicitHeight + 10
+					anchors.top: titleBlk.bottom
+					Text { id: createdon
+						text: _T_status == 2 ? qsTr(_T_createdon + " - " + _T_updatedon) : _T_status == 1 ? _T_updatedon : _T_createdon
+						width: parent.width - 20
+						font.pixelSize: taskViewGrid.dateFontSize
+						font.weight: Font.Light
+						color: "#555"
+						anchors.centerIn: parent
+						wrapMode: Text.WordWrap
+					}
+				}
+				Item { id: descBlk
+					width: parent.width
+					height: desc.text != "" ? desc.implicitHeight + 10 : 0
+					anchors.top: createdonBlk.bottom
+					anchors.topMargin: 10
+					Text { id: desc
+						text: _T_description
+						width: parent.width - 20
+						font.pixelSize: taskViewGrid.descFontSize
+						font.weight: Font.Light
+						anchors.centerIn: parent
+						wrapMode: Text.WordWrap
+					}
+				}
+				Item { id: scoreandtagBlk
+					width: parent.width
+					height: tagBlk.height
+					anchors.top: descBlk.bottom
+					anchors.topMargin: 10
+					Rectangle { id: tagBlk
+						color: "#e7e7e7"
+						width: tag.text != "" ? tag.implicitWidth + 20 : 0
+						height: width == 0 ? 0 : 20
+						anchors.left: parent.left
+						anchors.leftMargin: 10
+						Text { id: tag
+							text: _T_tag != "" ? qsTr("\uf02b  ") + _T_tag : ""
+							width: parent.width - 20
+							font.pixelSize: taskViewGrid.descFontSize
+							anchors.centerIn: parent
+							font.weight: Font.Light
+							wrapMode: Text.WordWrap
 						}
 					}
-					IPCButton {
-						icon: qsTr("\uf1f8")
-						text: qsTr("DELETE")
-						textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
-						iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
-						color: "#f4f4f4"
-						textColor: "#555"
-						width: parent.width
-						height: parent.height / 2
-						radius: 0
-						shadow: false
-						anchors.bottom: parent.bottom
-						onClicked:{
-							Dtt.deleteTask(_T_id)
+				}
+				Item {
+					visible: menu.open
+					width: 100 + taskViewGrid.widthFactor*20
+					height: 80 + taskViewGrid.widthFactor*10
+					anchors.right: parent.right
+					anchors.top: menu.bottom
+					Item { id: menuBox
+						anchors.fill: parent
+						IPCButton {
+							icon: qsTr("\uf061")
+							text: qsTr("STEP")
+							textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
+							iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
+							color: "#f4f4f4"
+							textColor: "#555"
+							width: parent.width
+							height: parent.height / 2
+							radius: 0
+							shadow: false
+							anchors.top: parent.top
+							onClicked:{
+								Dtt.stepTask(_T_id)
+							}
+						}
+						IPCButton {
+							icon: qsTr("\uf1f8")
+							text: qsTr("DELETE")
+							textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
+							iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
+							color: "#f4f4f4"
+							textColor: "#555"
+							width: parent.width
+							height: parent.height / 2
+							radius: 0
+							shadow: false
+							anchors.bottom: parent.bottom
+							onClicked:{
+								Dtt.deleteTask(_T_id)
+							}
 						}
 					}
 				}
