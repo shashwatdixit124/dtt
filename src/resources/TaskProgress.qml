@@ -26,6 +26,7 @@ import api.dtt 1.0
 Item { id: item
 	width: 200
 	height: 200
+	clip: true
 
 	property real progress: 0
 	property string pallete : "#2980b9"
@@ -47,7 +48,16 @@ Item { id: item
 		anchors.top: parent.top
 		width: parent.width
 		height: (1 - (item.progress * 0.01)) * parent.height
+		clip: true
 		Behavior on height { NumberAnimation { duration: 300 ; easing.type : Easing.InCirc } }
+
+		Rectangle {
+			anchors.top: parent.top
+			width: parent.width
+			height: parent.parent.height
+			radius: width/2
+			color: "#f6f6f6"
+		}
 	}
 
 	Rectangle {

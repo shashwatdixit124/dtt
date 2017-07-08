@@ -32,10 +32,13 @@ Popup { id: item
 
 	property int taskid: 0
 	property string title: "Dtt"
-	property int progress: 5
+	property int progress: 0
 
 	function show()
 	{
+		subTaskDetail.visible = false
+		subTaskDetail.id = -1
+		subTaskDetail.color = "#f5f5f5"
 		open()
 	}
 
@@ -45,6 +48,10 @@ Popup { id: item
 	background: Item{
 		implicitHeight: 400
 		implicitWidth: 500
+
+		MouseArea {
+			anchors.fill: parent
+		}
 
 		Rectangle { id: popupBack
 			anchors.fill: parent
@@ -92,7 +99,7 @@ Popup { id: item
 
 						Connections {
 							target: Dtt
-							onSubTaskListUpdated: taskProgress.progress = Dtt.taskProgress(Dtt.currentTask)
+							onSubTaskListUpdated: item.progress = Dtt.taskProgress(Dtt.currentTask)
 						}
 
 						TaskProgress { id: taskProgress
@@ -159,25 +166,45 @@ Popup { id: item
 					}
 				}
 				Rectangle { id: subTaskDetail
-					color: item.pallete//"#f7f7f7"
+					color: "#f5f5f5"
 					width: parent.width
 					height: parent.height
 					visible: false
 					anchors.centerIn: parent
 					clip: true
 
+					property int id: -1
 					property string desc
 					property int status: 1
 					property string createdon
 					property string updatedon
 
+					IPCButton {
+						icon: qsTr("\uf00d")
+						color: subTaskDetail.color
+						textColor: "#f9f9f9"
+						height: 40
+						width: 40
+						shadow: false
+						radius: 0
+						onClicked: {
+							subTaskDetail.id = -1
+							subTaskDetail.color = "#f5f5f5"
+							subTaskDetail.visible = false
+						}
+						anchors.left: parent.left
+						anchors.top: parent.top
+					}
+
 					Column {
-						anchors.fill: parent
+						width: parent.width
+						height: parent.height - 40
+						anchors.bottom: parent.bottom
 						Item {
 							width: parent.width
 							height: 40
 							Text {
-								color: "#f6f6f6"
+								color: "#f9f9f9"
 								font.pixelSize: 12
 								text: subTaskDetail.status == 1 ? subTaskDetail.createdon : subTaskDetail.createdon + " - " + subTaskDetail.updatedon
 								anchors.centerIn: parent
@@ -188,7 +215,7 @@ Popup { id: item
 							width: parent.width
 							height: 40
 							Text {
-								color: "#f6f6f6"
+								color: "#f9f9f9"
 								font.pixelSize: 12
 								text: subTaskDetail.status == 1 ? "Status : PENDING" : "Status : COMPLETED"
 								anchors.centerIn: parent
@@ -199,7 +226,7 @@ Popup { id: item
 							width: parent.width
 							height: parent.height - 80
 							Text {
-								color: "#f6f6f6"
+								color: "#f9f9f9"
 								font.pixelSize: 16
 								text: subTaskDetail.desc
 								width: parent.width - 20
@@ -209,15 +236,6 @@ Popup { id: item
 							}
 						}
 					}
-
-					IPCButton {
-						icon: qsTr("\uf00d")
-						shadow: false
-						radius: 0
-						onClicked: subTaskDetail.visible = false
-						anchors.right: parent.right
-						anchors.top: parent.top
-					}
 				}
 			}
 
@@ -226,71 +244,99 @@ Popup { id: item
 				height: parent.height
 				color: "#fcfcfc"
 
-				ListView { id: listView
+				Item {
 					anchors.fill: parent
-					anchors.margins: 20
-					delegate: subTaskDelegate
-					spacing: 10
+					anchors.topMargin: 20
+					anchors.bottomMargin: 20
+					anchors.rightMargin: 20
+					clip: true
 
-					Connections {
-						target: Dtt
-						onCurrentTaskChanged: listView.model = Dtt.subTasks
-					}
-					Component { id: subTaskDelegate
-						Row {
-							height: 40
-							width: parent.width
-							clip: true
-							Rectangle {
-								height: parent.height
-								width: 5
-								color: _ST_status == 1 ? "#2980b9" : _ST_status == 0 ? "#333" : "#27ae60"
-							}
-							Item {
-								height: parent.height
-								width: _ST_status == 2 ? parent.width - 45 : parent.width - 85
-								Text {
-									font.pixelSize: 14
-									width: parent.width - 20
-									elide: Text.ElideMiddle
-									anchors.centerIn: parent
-									text: _ST_description
-								}
-								MouseArea {
-									anchors.fill: parent
-									cursorShape: Qt.PointingHandCursor
-									onClicked: {
-										subTaskDetail.desc = _ST_description
-										subTaskDetail.status = _ST_status
-										subTaskDetail.createdon = _ST_createdon
-										subTaskDetail.updatedon = _ST_updatedon
-										subTaskDetail.visible = true
+					ListView { id: listView
+						anchors.fill: parent
+						delegate: subTaskDelegate
+						spacing: 10
+						ScrollBar.horizontal: ScrollBar{}
+
+						Connections {
+							target: Dtt
+							onCurrentTaskChanged: listView.model = Dtt.subTasks
+						}
+						Component { id: subTaskDelegate
+							Row {
+								height: 40
+								width: parent.width
+								clip: true
+								Item {
+									height: 20
+									anchors.verticalCenter: parent.verticalCenter
+									width: 10
+									clip: true
+									Rectangle { id: statuscolor
+										height: parent.height
+										width: height
+										radius: width/2
+										anchors.right: parent.right
+										color: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#2980b9" : _ST_status == 0 ? "#333" : "#27ae60" : "transparent"
 									}
 								}
-							}
-							IPCButton {
-								visible: _ST_status != 2
-								height: parent.height
-								width: 40
-								radius: 0
-								shadow: false
-								icon: qsTr("\uf00c")
-								color: "#fff"
-								textColor: "#555"
-								onClicked: Dtt.stepSubTask(_ST_id)
-							}
-							IPCButton {
-								height: parent.height
-								width: 40
-								radius: 0
-								shadow: false
-								icon: qsTr("\uf1f8")
-								color: "#fff"
-								textColor: "#555"
-								onClicked: Dtt.deleteSubTask(_ST_id)
+								Item {
+									height: parent.height
+									width: _ST_status == 2 ? parent.width - 45 : parent.width - 85
+									Text {
+										font.pixelSize: 14
+										width: parent.width - 20
+										elide: Text.ElideMiddle
+										anchors.centerIn: parent
+										text: _ST_description
+									}
+									MouseArea {
+										anchors.fill: parent
+										cursorShape: Qt.PointingHandCursor
+										onClicked: {
+											subTaskDetail.id = _ST_id
+											subTaskDetail.color = statuscolor.color
+											subTaskDetail.desc = _ST_description
+											subTaskDetail.status = _ST_status
+											subTaskDetail.createdon = _ST_createdon
+											subTaskDetail.updatedon = _ST_updatedon
+											subTaskDetail.visible = true
+										}
+									}
+								}
+								IPCButton {
+									visible: _ST_status != 2
+									height: parent.height
+									width: 40
+									radius: 0
+									shadow: false
+									icon: qsTr("\uf00c")
+									color: "#fff"
+									textColor: "#555"
+									onClicked: Dtt.stepSubTask(_ST_id)
+								}
+								IPCButton {
+									height: parent.height
+									width: 40
+									radius: 0
+									shadow: false
+									icon: qsTr("\uf1f8")
+									color: "#fff"
+									textColor: "#555"
+									onClicked: Dtt.deleteSubTask(_ST_id)
+								}
 							}
 						}
 					}
+
+					Text {
+						visible: listView.count === 0
+						text: qsTr("No SubTasks")
+						font.pixelSize: 30
+						font.weight: Font.Light
+						color: "#bbb"
+						anchors.centerIn: parent
+					}
+
 				}
 			}
 

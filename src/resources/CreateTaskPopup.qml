@@ -42,6 +42,11 @@ Popup { id: item
 	background: Item{
 		implicitHeight: 400
 		implicitWidth: 500
+
+		MouseArea {
+			anchors.fill: parent
+		}
+
 		Rectangle { id: popupBack
 			anchors.fill: parent
 		}
