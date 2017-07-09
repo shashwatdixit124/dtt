@@ -40,6 +40,7 @@ public:
 
 	bool addTask(Task *);
 	bool stepTask(Task *);
+	bool toggleBookmark(Task *);
 	bool deleteTask(Task *);
 
 	bool addSubTask(SubTask *);

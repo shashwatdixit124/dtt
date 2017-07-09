@@ -147,6 +147,7 @@ Popup { id: item
 								icon: qsTr("\uf067")
 								active: true
 								radius: 0
+								shadow: false
 								onClicked: {
 									if(subTaskInput.text == "")
 										return;
@@ -160,6 +161,7 @@ Popup { id: item
 								icon: qsTr("\uf00d")
 								active: true
 								radius: 0
+								shadow: false
 								onClicked: actionBlk.btnshow = true
 							}
 						}

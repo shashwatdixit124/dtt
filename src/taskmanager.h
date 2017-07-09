@@ -32,13 +32,13 @@
 
 class DBManager;
 class PendingTasks;
-class WipTasks;
-class CompletedTasks;
+class BookmarkedTasks;
 
 class TaskManager : public QObject
 {
 	Q_OBJECT
 	Q_PROPERTY(QAbstractListModel* pendingTasks READ pendingTasks CONSTANT)
+	Q_PROPERTY(QAbstractListModel* bookmarkedTasks READ bookmarkedTasks CONSTANT)
 	Q_PROPERTY(quint16 currentTask READ currentTask WRITE setCurrentTask NOTIFY currentTaskChanged)
 	Q_PROPERTY(QAbstractListModel* subTasks READ subTasks CONSTANT)
 	Q_PROPERTY(int maxYValue READ maxYValue CONSTANT)
@@ -49,6 +49,7 @@ public:
 	~TaskManager();
 
 	QAbstractListModel* pendingTasks();
+	QAbstractListModel* bookmarkedTasks();
 	QAbstractListModel* subTasks();
 
 	quint16 currentTask();
@@ -62,6 +63,7 @@ public:
 
 	Q_INVOKABLE void addTask(QString,QString,QString);
 	Q_INVOKABLE void stepTask(quint16);
+	Q_INVOKABLE void toggleBookmark(quint16);
 	Q_INVOKABLE void deleteTask(quint16);
 
 	Q_INVOKABLE void addSubTask(quint16,QString);
@@ -81,6 +83,7 @@ public:
 Q_SIGNALS:
 	void taskAdded(Task*);
 	void taskStepped(Task *);
+	void taskBookmarked(Task *);
 	void taskDeleted(Task *);
 	void subTaskListUpdated();
 
@@ -93,6 +96,7 @@ protected Q_SLOTS:
 private:
 	DBManager* m_db;
 	PendingTasks* m_pending;
+	BookmarkedTasks* m_bookmarked;
 
 	quint16 m_currTask;
 	QMap<quint16, Task*> m_tasks;

@@ -23,6 +23,7 @@
 #include "subtasklist.h"
 #include "dbmanager.h"
 #include "pendingtasks.h"
+#include "bookmarkedtasks.h"
 
 #include <QObject>
 #include <QList>
@@ -38,7 +39,6 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 		if(t->id() > m_maxTaskId)
 			m_maxTaskId = t->id();
 		m_tasks.insert(t->id(),t);
-		t->print();
 	}
 
 	QList<SubTask*> subTasks = m_db->subTasks();
@@ -50,6 +50,7 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 	}
 
 	m_pending = new PendingTasks(this);
+	m_bookmarked = new BookmarkedTasks(this);
 
 	for(int i = 0;i<7;i++)
 	{
@@ -61,6 +62,7 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 
 TaskManager::~TaskManager()
 {
+	m_bookmarked->deleteLater();
 	m_pending->deleteLater();
 
 	foreach (SubTask * s, m_deletedSubTasks) {
@@ -107,6 +109,11 @@ QAbstractListModel* TaskManager::subTasks()
 QAbstractListModel * TaskManager::pendingTasks()
 {
 	return m_pending;
+}
+
+QAbstractListModel *TaskManager::bookmarkedTasks()
+{
+	return m_bookmarked;
 }
 
 int TaskManager::maxYValue()
@@ -198,6 +205,7 @@ void TaskManager::addTask(QString title, QString desc, QString tag)
 	t->setCreatedOn(QDate::currentDate());
 	t->setUpdatedOn(QDate());
 	t->setStatus(Task::PENDING);
+	t->setBookmarked(false);
 	if(!m_db->addTask(t))
 		return;
 
@@ -217,8 +225,19 @@ void TaskManager::stepTask(quint16 id)
 	t->setUpdatedOn(QDate::currentDate());
 	t->setStatus(Task::COMPLETED);
 	emit taskStepped(t);
-	qDebug() << "****";
 	load7day();
+}
+
+void TaskManager::toggleBookmark(quint16 id)
+{
+	Task *t = m_tasks[id];
+	if(!t)
+		return;
+	if(!m_db->toggleBookmark(t))
+		return;
+
+	t->setBookmarked(!t->bookmarked());
+	emit taskBookmarked(t);
 }
 
 void  TaskManager::deleteTask(quint16 id)

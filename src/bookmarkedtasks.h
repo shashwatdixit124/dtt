@@ -18,8 +18,8 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#ifndef PENDINGTASKS_H
-#define PENDINGTASKS_H
+#ifndef BOOKMARKEDTASKS_H
+#define BOOKMARKEDTASKS_H
 
 #include <QObject>
 #include <QAbstractListModel>
@@ -28,7 +28,7 @@
 class Task;
 class TaskManager;
 
-class PendingTasks : public QAbstractListModel
+class BookmarkedTasks : public QAbstractListModel
 {
 	Q_OBJECT
 public:
@@ -44,14 +44,13 @@ public:
 		BOOKMARKED
 	};
 
-	explicit PendingTasks(TaskManager* parent);
-	~PendingTasks();
+	explicit BookmarkedTasks(TaskManager* parent);
+	~BookmarkedTasks();
 	int rowCount(const QModelIndex & parent = QModelIndex()) const;
 	QVariant data(const QModelIndex & index, int role = Qt::DisplayRole) const;
 
 public Q_SLOTS:
-	void updateAdd(Task *);
-	void updateStep(Task *);
+	void updateToggle(Task *);
 	void updateDelete(Task *);
 
 protected:

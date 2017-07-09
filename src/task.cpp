@@ -26,7 +26,8 @@
 #include <QDate>
 #include <QDebug>
 
-Task::Task() : m_status(INVALID) , m_createdOn(QDate::currentDate()) , m_updatedOn(QDate()) , m_list(new SubTaskList())
+Task::Task() : m_status(INVALID) , m_createdOn(QDate::currentDate()) , m_updatedOn(QDate()) ,
+	m_list(new SubTaskList()) , m_bookmarked(false)
 {
 }
 
@@ -68,6 +69,11 @@ QDate Task::updatedOn() const
 Task::Status Task::status() const
 {
 	return m_status;
+}
+
+bool Task::bookmarked() const
+{
+	return m_bookmarked;
 }
 
 quint8 Task::progress() const
@@ -126,6 +132,11 @@ void Task::setStatus(Task::Status status)
 	m_status = status;
 }
 
+void Task::setBookmarked(bool bm)
+{
+	m_bookmarked = bm;
+}
+
 QList<SubTask*> Task::subTasks() const
 {
 	return m_list->subTasks();
@@ -170,6 +181,7 @@ void Task::print()
 	qDebug() << " Created On : " << createdOn();
 	qDebug() << " Updated On : " << updatedOn();
 	qDebug() << " Status : " << status();
+	qDebug() << " BookMarked : " << bookmarked();
 	if(m_list->rowCount() == 0)
 		qDebug() << " No SubTasks Listed " ;
 	else {

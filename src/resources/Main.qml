@@ -142,6 +142,28 @@ ApplicationWindow { id: root
 							taskViewGrid.cardWidth -= 100
 					}
 				}
+				IPCButton {
+					property bool show: false
+					height: parent.height
+					width: 150
+					text: qsTr("\uf02e  Show Bookmarks")
+					radius: width / 2
+					shadow: false
+					active: show
+					onClicked: {
+						show = !show
+						if(show) {
+							list1.model = Dtt.bookmarkedTasks
+							list2.model = Dtt.bookmarkedTasks
+							list3.model = Dtt.bookmarkedTasks
+						}
+						else {
+							list1.model = Dtt.pendingTasks
+							list2.model = Dtt.pendingTasks
+							list3.model = Dtt.pendingTasks
+						}
+					}
+				}
 			}
 
 		}
@@ -160,7 +182,7 @@ ApplicationWindow { id: root
 				anchors.margins: spacing
 				spacing: 20
 
-				ListView {
+				ListView { id: list1
 					property int unique: 0
 					width: taskViewGrid.cardWidth
 					height: parent.height
@@ -169,7 +191,7 @@ ApplicationWindow { id: root
 					onCurrentIndexChanged: currentIndex = count > 0 ? 0 : -1
 					ScrollBar.vertical: ScrollBar {}
 				}
-				ListView {
+				ListView { id: list2
 					property int unique: 1
 					width: taskViewGrid.cardWidth
 					height: parent.height
@@ -177,7 +199,7 @@ ApplicationWindow { id: root
 					delegate: taskCard
 					ScrollBar.vertical: ScrollBar {}
 				}
-				ListView {
+				ListView { id: list3
 					property int unique: 2
 					width: taskViewGrid.cardWidth
 					height: parent.height
@@ -277,6 +299,21 @@ ApplicationWindow { id: root
 						showTaskPopup.title = _T_title
 						showTaskPopup.progress = _T_progress
 						showTaskPopup.show()
+					}
+				}
+
+				Text {
+					text: qsTr("\uf02e")
+					font.pixelSize: 18 + taskViewGrid.widthFactor
+					color: _T_bookmarked ? "#f39c12" : "#777"
+					anchors.top: parent.top
+					anchors.left: parent.left
+					anchors.leftMargin: 10
+					anchors.topMargin: -5
+					MouseArea {
+						anchors.fill: parent
+						cursorShape: Qt.PointingHandCursor
+						onClicked: Dtt.toggleBookmark(_T_id)
 					}
 				}
 

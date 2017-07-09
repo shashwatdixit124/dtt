@@ -80,6 +80,7 @@ QList<Task *> DBManager::tasks()
 		t->setCreatedOn(query.value(4).toDate());
 		t->setUpdatedOn(query.value(5).toDate());
 		t->setStatus(Task::Status(query.value(6).toInt()));
+		t->setBookmarked(query.value(7).toBool());
 		tasks.push_back(t);
 	}
 	return tasks;
@@ -119,7 +120,7 @@ bool DBManager::addTask(Task * t)
 		return false;
 
 	QSqlQuery query(*m_db);
-	QString q = "INSERT INTO Tasks Values (:title , :description , :tag , :createdon , :updatedon , :status)" ;
+	QString q = "INSERT INTO Tasks Values (:title , :description , :tag , :createdon , :updatedon , :status , :bookmarked)" ;
 	query.prepare(q);
 	query.bindValue(":title",t->title());
 	query.bindValue(":description",t->description());
@@ -127,6 +128,7 @@ bool DBManager::addTask(Task * t)
 	query.bindValue(":createdon",t->createdOn().toString("yyyy-MM-dd"));
 	query.bindValue(":updatedon",t->updatedOn().toString("yyyy-MM-dd"));
 	query.bindValue(":status",t->status());
+	query.bindValue(":bookmarked",t->bookmarked());
 	if(!query.exec()) {
 		qDebug() << this << "cannot create task" ;
 		qDebug() << "ERROR : " << m_db->lastError().text();
@@ -153,7 +155,26 @@ bool DBManager::stepTask(Task *t)
 		qDebug() << "ERROR : " << m_db->lastError().text();
 		return false;
 	}
-	qDebug() << "****";
+	return true;
+}
+
+bool DBManager::toggleBookmark(Task *t)
+{
+	if(!isDbOpen)
+		return false;
+
+	QSqlQuery query(*m_db);
+
+	QString q = "UPDATE Tasks SET bookmarked = :bookmarked WHERE rowid = :id" ;
+	query.prepare(q);
+	query.bindValue(":id",t->id());
+	query.bindValue(":bookmarked",!t->bookmarked());
+	if(!query.exec())
+	{
+		qDebug() << this << "cannot update task" ;
+		qDebug() << "ERROR : " << m_db->lastError().text();
+		return false;
+	}
 	return true;
 }
 
@@ -276,7 +297,7 @@ bool DBManager::createDatabase()
 	}
 
 	QSqlQuery query(db);
-	QString q = "CREATE TABLE Tasks (title TEXT NOT NULL, description TEXT, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER)";
+	QString q = "CREATE TABLE Tasks (title TEXT NOT NULL, description TEXT, tag VARCHAR(15), createdon DATE NOT NULL, updatedon DATE , status INTEGER , bookmarked BOOLEAN)";
 
 	if(!query.exec(q))
 	{

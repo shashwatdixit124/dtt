@@ -49,6 +49,7 @@ public:
 	QDate createdOn() const;
 	QDate updatedOn() const;
 	Status status() const;
+	bool bookmarked() const;
 	quint8 progress() const;
 
 	void setId(quint16);
@@ -58,6 +59,7 @@ public:
 	void setCreatedOn(QDate);
 	void setUpdatedOn(QDate);
 	void setStatus(Status);
+	void setBookmarked(bool);
 
 	QList<SubTask*> subTasks() const;
 	SubTaskList* list();
@@ -76,6 +78,7 @@ protected:
 	QDate m_createdOn;
 	QDate m_updatedOn;
 	Status m_status;
+	bool m_bookmarked;
 	SubTaskList* m_list;
 
 };

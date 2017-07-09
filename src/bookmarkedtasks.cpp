@@ -18,7 +18,7 @@
  *   51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-#include "pendingtasks.h"
+#include "bookmarkedtasks.h"
 #include "task.h"
 #include "taskmanager.h"
 
@@ -26,26 +26,24 @@
 #include <QObject>
 #include <QList>
 
-PendingTasks::PendingTasks(TaskManager *parent) : QAbstractListModel(parent)
+BookmarkedTasks::BookmarkedTasks(TaskManager *parent) : QAbstractListModel(parent)
 {
 	foreach(Task *t, parent->tasks())
 	{
-		if(t->status() != Task::INVALID)
+		if(t->bookmarked())
 			m_tasks.push_front(t);
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
-	connect(parent,&TaskManager::taskAdded,this,&PendingTasks::updateAdd);
-	connect(parent,&TaskManager::taskStepped,this,&PendingTasks::updateStep);
-	connect(parent,&TaskManager::taskBookmarked,this,&PendingTasks::updateStep);
-	connect(parent,&TaskManager::taskDeleted,this,&PendingTasks::updateDelete);
+	connect(parent,&TaskManager::taskBookmarked,this,&BookmarkedTasks::updateToggle);
+	connect(parent,&TaskManager::taskDeleted,this,&BookmarkedTasks::updateDelete);
 }
 
-PendingTasks::~PendingTasks()
+BookmarkedTasks::~BookmarkedTasks()
 {
 }
 
-QVariant PendingTasks::data(const QModelIndex& index, int role) const
+QVariant BookmarkedTasks::data(const QModelIndex& index, int role) const
 {
 	if (index.row() < 0 || index.row() >= m_tasks.count())
 		return QVariant();
@@ -71,39 +69,28 @@ QVariant PendingTasks::data(const QModelIndex& index, int role) const
 	return QVariant();	
 }
 
-int PendingTasks::rowCount(const QModelIndex& parent) const
+int BookmarkedTasks::rowCount(const QModelIndex& parent) const
 {
 	Q_UNUSED(parent);
 	return m_tasks.count();
 }
 
-void PendingTasks::updateAdd(Task *t)
+void BookmarkedTasks::updateToggle(Task *t)
 {
 	if(t->status() == Task::INVALID)
 		return;
+
+	if(!t->bookmarked()) {
+		updateDelete(t);
+		return;
+	}
+
 	beginInsertRows(QModelIndex(), 0 , 0);
 	m_tasks.push_front(t);
 	endInsertRows();
 }
 
-void PendingTasks::updateStep(Task *t)
-{
-	if(t->status() == Task::INVALID)
-		return;
-	for(int i = 0;i<rowCount();i++)
-	{
-		Task *tt = m_tasks[i];
-		if(tt->id() == t->id()) {
-			beginRemoveRows(QModelIndex(), i , i);
-			endRemoveRows();
-			beginInsertRows(QModelIndex(), i , i);
-			endInsertRows();
-			break;
-		}
-	}
-}
-
-void PendingTasks::updateDelete(Task *t)
+void BookmarkedTasks::updateDelete(Task *t)
 {
 	if(t->status() == Task::INVALID)
 		return;
@@ -119,7 +106,7 @@ void PendingTasks::updateDelete(Task *t)
 	}
 }
 
-QHash<int, QByteArray> PendingTasks::roleNames() const
+QHash<int, QByteArray> BookmarkedTasks::roleNames() const
 {
 	QHash<int, QByteArray> roles;
 	roles[ID] = "_T_id";
