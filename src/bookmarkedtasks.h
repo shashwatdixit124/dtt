@@ -41,7 +41,8 @@ public:
 		CREATEDON,
 		UPDATEDON,
 		STATUS,
-		BOOKMARKED
+		BOOKMARKED,
+		SUBTASKCOUNT
 	};
 
 	explicit BookmarkedTasks(TaskManager* parent);
@@ -51,6 +52,7 @@ public:
 
 public Q_SLOTS:
 	void updateToggle(Task *);
+	void refresh(Task *);
 	void updateDelete(Task *);
 
 protected:

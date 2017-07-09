@@ -36,8 +36,8 @@ PendingTasks::PendingTasks(TaskManager *parent) : QAbstractListModel(parent)
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
 	connect(parent,&TaskManager::taskAdded,this,&PendingTasks::updateAdd);
-	connect(parent,&TaskManager::taskStepped,this,&PendingTasks::updateStep);
-	connect(parent,&TaskManager::taskBookmarked,this,&PendingTasks::updateStep);
+	connect(parent,&TaskManager::taskCompleteToggled,this,&PendingTasks::refresh);
+	connect(parent,&TaskManager::taskBookmarkToggled,this,&PendingTasks::refresh);
 	connect(parent,&TaskManager::taskDeleted,this,&PendingTasks::updateDelete);
 }
 
@@ -68,6 +68,8 @@ QVariant PendingTasks::data(const QModelIndex& index, int role) const
 		return t->status();
 	else if(role == BOOKMARKED)
 		return t->bookmarked();
+	else if(role == SUBTASKCOUNT)
+		return t->subTasks().count();
 	return QVariant();	
 }
 
@@ -86,7 +88,7 @@ void PendingTasks::updateAdd(Task *t)
 	endInsertRows();
 }
 
-void PendingTasks::updateStep(Task *t)
+void PendingTasks::refresh(Task *t)
 {
 	if(t->status() == Task::INVALID)
 		return;
@@ -131,6 +133,7 @@ QHash<int, QByteArray> PendingTasks::roleNames() const
 	roles[UPDATEDON] = "_T_updatedon";
 	roles[STATUS] = "_T_status";
 	roles[BOOKMARKED] = "_T_bookmarked";
+	roles[SUBTASKCOUNT] = "_T_subtaskcount";
 	return roles;
 }
 

@@ -35,7 +35,8 @@ BookmarkedTasks::BookmarkedTasks(TaskManager *parent) : QAbstractListModel(paren
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
-	connect(parent,&TaskManager::taskBookmarked,this,&BookmarkedTasks::updateToggle);
+	connect(parent,&TaskManager::taskCompleteToggled,this,&BookmarkedTasks::updateToggle);
+	connect(parent,&TaskManager::taskBookmarkToggled,this,&BookmarkedTasks::updateToggle);
 	connect(parent,&TaskManager::taskDeleted,this,&BookmarkedTasks::updateDelete);
 }
 
@@ -66,6 +67,8 @@ QVariant BookmarkedTasks::data(const QModelIndex& index, int role) const
 		return t->status();
 	else if(role == BOOKMARKED)
 		return t->bookmarked();
+	else if(role == SUBTASKCOUNT)
+		return t->subTasks().count();
 	return QVariant();	
 }
 
@@ -88,6 +91,24 @@ void BookmarkedTasks::updateToggle(Task *t)
 	beginInsertRows(QModelIndex(), 0 , 0);
 	m_tasks.push_front(t);
 	endInsertRows();
+}
+
+void BookmarkedTasks::refresh(Task *t)
+{
+	if(t->status() == Task::INVALID)
+		return;
+
+	for(int i = 0;i<rowCount();i++)
+	{
+		Task *tt = m_tasks[i];
+		if(tt->id() == t->id()) {
+			beginRemoveRows(QModelIndex(), i , i);
+			endRemoveRows();
+			beginInsertRows(QModelIndex(), 0 , 0);
+			endInsertRows();
+			break;
+		}
+	}
 }
 
 void BookmarkedTasks::updateDelete(Task *t)
@@ -118,6 +139,7 @@ QHash<int, QByteArray> BookmarkedTasks::roleNames() const
 	roles[UPDATEDON] = "_T_updatedon";
 	roles[STATUS] = "_T_status";
 	roles[BOOKMARKED] = "_T_bookmarked";
+	roles[SUBTASKCOUNT] = "_T_subtaskcount";
 	return roles;
 }
 

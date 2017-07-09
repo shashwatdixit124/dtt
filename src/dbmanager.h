@@ -39,7 +39,7 @@ public:
 	QList<SubTask*> subTasks();
 
 	bool addTask(Task *);
-	bool stepTask(Task *);
+	bool toggleComplete(Task *);
 	bool toggleBookmark(Task *);
 	bool deleteTask(Task *);
 

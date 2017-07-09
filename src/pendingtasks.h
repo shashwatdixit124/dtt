@@ -41,7 +41,8 @@ public:
 		CREATEDON,
 		UPDATEDON,
 		STATUS,
-		BOOKMARKED
+		BOOKMARKED,
+		SUBTASKCOUNT
 	};
 
 	explicit PendingTasks(TaskManager* parent);
@@ -51,7 +52,7 @@ public:
 
 public Q_SLOTS:
 	void updateAdd(Task *);
-	void updateStep(Task *);
+	void refresh(Task *);
 	void updateDelete(Task *);
 
 protected:

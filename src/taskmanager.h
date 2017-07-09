@@ -62,7 +62,7 @@ public:
 	QList<Task*> tasks();
 
 	Q_INVOKABLE void addTask(QString,QString,QString);
-	Q_INVOKABLE void stepTask(quint16);
+	Q_INVOKABLE void toggleComplete(quint16);
 	Q_INVOKABLE void toggleBookmark(quint16);
 	Q_INVOKABLE void deleteTask(quint16);
 
@@ -82,8 +82,8 @@ public:
 
 Q_SIGNALS:
 	void taskAdded(Task*);
-	void taskStepped(Task *);
-	void taskBookmarked(Task *);
+	void taskCompleteToggled(Task *);
+	void taskBookmarkToggled(Task *);
 	void taskDeleted(Task *);
 	void subTaskListUpdated();
 

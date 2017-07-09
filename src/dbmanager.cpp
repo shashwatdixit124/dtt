@@ -137,18 +137,20 @@ bool DBManager::addTask(Task * t)
 	return true;
 }
 
-bool DBManager::stepTask(Task *t)
+bool DBManager::toggleComplete(Task *t)
 {
-	if(!isDbOpen || t->status() != Task::PENDING)
+	if(!isDbOpen || t->status() == Task::INVALID)
 		return false;
 
 	QSqlQuery query(*m_db);
+
+	Task::Status newStatus = t->status() == Task::PENDING ? Task::COMPLETED : Task::PENDING;
 
 	QString q = "UPDATE Tasks SET updatedon = :updatedon , status = :status WHERE rowid = :id" ;
 	query.prepare(q);
 	query.bindValue(":id",t->id());
 	query.bindValue(":updatedon",QDate::currentDate().toString("yyyy-MM-dd"));
-	query.bindValue(":status",Task::COMPLETED);
+	query.bindValue(":status",newStatus);
 	if(!query.exec())
 	{
 		qDebug() << this << "cannot update task" ;

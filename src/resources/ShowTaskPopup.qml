@@ -33,6 +33,7 @@ Popup { id: item
 	property int taskid: 0
 	property string title: "Dtt"
 	property int progress: 0
+	property int status: 2
 
 	function show()
 	{
@@ -40,6 +41,7 @@ Popup { id: item
 		subTaskDetail.id = -1
 		subTaskDetail.color = "#f5f5f5"
 		subTaskDetail.textcolor = "transparent"
+		actionBlk.btnshow = true
 		open()
 	}
 
@@ -83,7 +85,7 @@ Popup { id: item
 				Column {
 					anchors.fill: parent
 					Item {
-						height: parent.height - 280
+						height: parent.height - 200 - 80
 						width: parent.width
 						Text { id: taskTitle
 							text: item.title
@@ -109,63 +111,6 @@ Popup { id: item
 							height: parent.height - 20
 							width: parent.width - 20
 						}
-					}
-					Item { id:actionBlk
-						height: 80
-						width: parent.width
-						property bool btnshow: true
-						IPCButton {
-							shadow: false
-							radius: 0
-							anchors.centerIn: parent
-							text: qsTr("Add Sub Tasks")
-							visible: parent.btnshow
-							onClicked: actionBlk.btnshow = false
-						}
-
-						Row {
-							visible: !actionBlk.btnshow
-							width: parent.width - 20
-							height: 40
-							anchors.centerIn: parent
-							TextField { id: subTaskInput
-								height: 40
-								width: parent.width - 80
-								font.pixelSize: activeFocus ? 16 : 14
-								placeholderText: qsTr(" Sub Task")
-								background: Rectangle {
-									implicitHeight: 40
-									implicitWidth: 400
-									color: parent.activeFocus ? "transparent" : "#f6f6f6"
-									border.color: item.pallete
-									border.width: parent.activeFocus ? 2 : 0
-								}
-							}
-							IPCButton {
-								height: 40
-								width: 40
-								icon: qsTr("\uf067")
-								active: true
-								radius: 0
-								shadow: false
-								onClicked: {
-									if(subTaskInput.text == "")
-										return;
-									Dtt.addSubTask(item.taskid,subTaskInput.text)
-									actionBlk.btnshow = true
-								}
-							}
-							IPCButton {
-								height: 40
-								width: 40
-								icon: qsTr("\uf00d")
-								active: true
-								radius: 0
-								shadow: false
-								onClicked: actionBlk.btnshow = true
-							}
-						}
-
 					}
 				}
 				Rectangle { id: subTaskDetail
@@ -252,14 +197,16 @@ Popup { id: item
 				color: "#fcfcfc"
 
 				Item {
-					anchors.fill: parent
-					anchors.topMargin: 20
-					anchors.bottomMargin: 20
-					anchors.rightMargin: 20
+					width: parent.width
+					height: parent.height - actionBlk.height
+					anchors.top: parent.top
 					clip: true
 
 					ListView { id: listView
 						anchors.fill: parent
+						anchors.topMargin: 20
+						anchors.bottomMargin: 20
+						anchors.rightMargin: 20
 						delegate: subTaskDelegate
 						spacing: 10
 						ScrollBar.horizontal: ScrollBar{}
@@ -289,7 +236,7 @@ Popup { id: item
 								}
 								Item {
 									height: parent.height
-									width: _ST_status == 2 ? parent.width - 45 : parent.width - 85
+									width: item.status == 1 ? parent.width - 5 : _ST_status == 2 ? parent.width - 45 : parent.width - 85
 									Text {
 										font.pixelSize: 14
 										width: parent.width - 20
@@ -313,8 +260,8 @@ Popup { id: item
 									}
 								}
 								IPCButton {
-									visible: _ST_status != 2
-									height: parent.height
+									visible: _ST_status != 2 && item.status != 1
+									height: visible ? parent.height : 0
 									width: 40
 									radius: 0
 									shadow: false
@@ -328,7 +275,8 @@ Popup { id: item
 									}
 								}
 								IPCButton {
-									height: parent.height
+									visible: item.status != 1
+									height: visible ? parent.height : 0
 									width: 40
 									radius: 0
 									shadow: false
@@ -353,6 +301,71 @@ Popup { id: item
 						color: "#bbb"
 						anchors.centerIn: parent
 					}
+				}
+				Item { id:actionBlk
+					anchors.bottom: parent.bottom
+					height: item.status == 1 ? 0 : 80
+					visible: item.status == 1 ? false : true
+					width: parent.width
+					property bool btnshow: true
+					IPCButton {
+						shadow: false
+						radius: 0
+						anchors.centerIn: parent
+						text: qsTr("Add Sub Tasks")
+						visible: parent.btnshow
+						onClicked: {
+							actionBlk.btnshow = false
+							subTaskInput.text = ""
+							subTaskInput.focus = true
+						}
+					}
+
+					Row {
+						visible: !actionBlk.btnshow
+						width: parent.width - 20
+						height: 40
+						anchors.centerIn: parent
+						TextField { id: subTaskInput
+							height: 40
+							width: parent.width - 80
+							font.pixelSize: activeFocus ? 16 : 14
+							placeholderText: qsTr(" Sub Task")
+							background: Rectangle {
+								implicitHeight: 40
+								implicitWidth: 400
+								color: parent.activeFocus ? "transparent" : "#f6f6f6"
+								border.color: item.pallete
+								border.width: parent.activeFocus ? 2 : 0
+							}
+						}
+						IPCButton {
+							height: 40
+							width: 40
+							icon: qsTr("\uf067")
+							active: true
+							radius: 0
+							shadow: false
+							onClicked: {
+								if(subTaskInput.text == "")
+									return;
+								Dtt.addSubTask(item.taskid,subTaskInput.text)
+								actionBlk.btnshow = true
+							}
+						}
+						IPCButton {
+							height: 40
+							width: 40
+							icon: qsTr("\uf00d")
+							active: true
+							radius: 0
+							shadow: false
+							onClicked: {
+								actionBlk.btnshow = true
+							}
+						}
+					}
+
 				}
 			}
 

@@ -214,17 +214,21 @@ void TaskManager::addTask(QString title, QString desc, QString tag)
 	load7day();
 }
 
-void TaskManager::stepTask(quint16 id)
+void TaskManager::toggleComplete(quint16 id)
 {
 	Task *t = m_tasks[id];
 	if(!t)
 		return;
-	if(!m_db->stepTask(t))
+
+	if(!m_db->toggleComplete(t))
 		return;
 
 	t->setUpdatedOn(QDate::currentDate());
-	t->setStatus(Task::COMPLETED);
-	emit taskStepped(t);
+	if(t->status() == Task::COMPLETED)
+		t->setStatus(Task::PENDING);
+	else if(t->status() == Task::PENDING)
+		t->setStatus(Task::COMPLETED);
+	emit taskCompleteToggled(t);
 	load7day();
 }
 
@@ -237,7 +241,7 @@ void TaskManager::toggleBookmark(quint16 id)
 		return;
 
 	t->setBookmarked(!t->bookmarked());
-	emit taskBookmarked(t);
+	emit taskBookmarkToggled(t);
 }
 
 void  TaskManager::deleteTask(quint16 id)
@@ -295,7 +299,7 @@ void TaskManager::addSubTask(quint16 taskid, QString description)
 
 	t->addSubTask(s);
 	m_subTasks.insert(s->id(),s);
-	emit taskStepped(t);
+	emit taskCompleteToggled(t);
 	emit subTaskListUpdated();
 	load7day();
 }
@@ -316,7 +320,7 @@ void TaskManager::stepSubTask(quint16 id)
 	s->setStatus(SubTask::COMPLETED);
 	s->setUpdatedOn(QDate::currentDate());
 	t->stepSubTask(s);
-	emit taskStepped(t);
+	emit taskCompleteToggled(t);
 	emit subTaskListUpdated();
 	load7day();
 }
@@ -347,7 +351,7 @@ void TaskManager::deleteSubTask(quint16 id)
 	}
 
 	m_deletedSubTasks.push_back(s);
-	emit taskStepped(t);
+	emit taskCompleteToggled(t);
 	emit subTaskListUpdated();
 	load7day();
 }
@@ -362,6 +366,15 @@ void TaskManager::load7day()
 		m_pending7Day[i] = 0;
 		m_completed7Day[i] = 0;
 	}
+
+	foreach (Task *t, allTasks) {
+		if(t->status() == Task::COMPLETED) {
+			int j = t->updatedOn().daysTo(today);
+			if(j >= 7)
+				deleteTask(t->id());
+		}
+	}
+
 	foreach (Task *t, allTasks) {
 		QList<SubTask*> subTasks = t->subTasks();
 		if(subTasks.count() > 0) {

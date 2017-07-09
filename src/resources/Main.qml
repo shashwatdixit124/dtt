@@ -284,7 +284,7 @@ ApplicationWindow { id: root
 			width: parent.width
 			height: !visible ? 0 : titleBlk.height + descBlk.height + scoreandtagBlk.height + createdonBlk.height + 40 + 20
 			Rectangle {
-				border.color: _T_status == 1 ? "#555" : _T_progress == 100 ? "#27ae60" : "#ccc"
+				border.color: _T_status == 1 ? "#2980b9" : _T_progress == 100 ? "#27ae60" : "#ccc"
 				radius: 3
 				width: parent.width
 				height: parent.height - 20
@@ -296,6 +296,7 @@ ApplicationWindow { id: root
 					onClicked: {
 						Dtt.currentTask = _T_id
 						showTaskPopup.taskid = _T_id
+						showTaskPopup.status = _T_status
 						showTaskPopup.title = _T_title
 						showTaskPopup.progress = _T_progress
 						showTaskPopup.show()
@@ -407,18 +408,22 @@ ApplicationWindow { id: root
 						anchors.fill: parent
 						IPCButton {
 							icon: qsTr("\uf061")
-							text: qsTr("STEP")
+							text: _T_status == 1 ? qsTr("REOPEN") : qsTr("CLOSE")
 							textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
 							iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
-							color: "#f4f4f4"
+							color: "#f6f6f6"
 							textColor: "#555"
+							active: _T_status != 1 ? (( _T_subtaskcount > 0 && _T_progress != 100) ? true : false) : false
+							activeColor: "#fafafa"
+							activeTextColor: "#ccc"
 							width: parent.width
 							height: parent.height / 2
 							radius: 0
 							shadow: false
 							anchors.top: parent.top
 							onClicked:{
-								Dtt.stepTask(_T_id)
+								if(!active)
+									Dtt.toggleComplete(_T_id)
 							}
 						}
 						IPCButton {
@@ -426,7 +431,7 @@ ApplicationWindow { id: root
 							text: qsTr("DELETE")
 							textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
 							iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
-							color: "#f4f4f4"
+							color: "#f6f6f6"
 							textColor: "#555"
 							width: parent.width
 							height: parent.height / 2
