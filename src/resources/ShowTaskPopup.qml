@@ -174,6 +174,7 @@ Popup { id: item
 								height: parent.height - 20
 								anchors.centerIn: parent
 								wrapMode: Text.WordWrap
+								onLinkActivated: Qt.openUrlExternally(link)
 							}
 						}						
 						Item {
