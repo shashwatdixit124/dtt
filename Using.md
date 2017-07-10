@@ -1,11 +1,11 @@
 # Using
 
-* [Dashboard](#DASHBOARD)
-* [Creating a Task](#CREATING-A-TASK)
-* [Closing or Deleting a Task](#CLOSING-OR-DELETING-TASK)
-* [Create/Show SubTasks](#SHOW-SUBTASKS)
-* [Bookmarks](#BOOKMARKS)
-* [Progress Graph](#PROGRESS-GRAPH)
+* [Dashboard](#dashboard)
+* [Creating a Task](#creating-a-task)
+* [Closing or Deleting a Task](#closing-or-deleting-task)
+* [Create/Show SubTasks](#show-subtasks)
+* [Bookmarks](#bookmarks)
+* [Progress Graph](#progress-graph)
 
 
 ## DASHBOARD
