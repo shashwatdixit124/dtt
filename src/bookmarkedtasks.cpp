@@ -35,7 +35,7 @@ BookmarkedTasks::BookmarkedTasks(TaskManager *parent) : QAbstractListModel(paren
 	}
 	beginInsertRows(QModelIndex(), 0 , rowCount()-1);
 	endInsertRows();
-	connect(parent,&TaskManager::taskCompleteToggled,this,&BookmarkedTasks::updateToggle);
+	connect(parent,&TaskManager::taskCompleteToggled,this,&BookmarkedTasks::refresh);
 	connect(parent,&TaskManager::taskBookmarkToggled,this,&BookmarkedTasks::updateToggle);
 	connect(parent,&TaskManager::taskDeleted,this,&BookmarkedTasks::updateDelete);
 }
