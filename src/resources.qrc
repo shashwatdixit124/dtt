@@ -5,6 +5,7 @@
         <file>resources/CreateTaskPopup.qml</file>
         <file>resources/ShowTaskPopup.qml</file>
         <file>resources/TaskProgress.qml</file>
+        <file>resources/TaskDescriptionView.qml</file>
         <file>resources/IPCButton.qml</file>
         <file>resources/StatusBar.qml</file>
         <file>resources/fontawesome-webfont.ttf</file>

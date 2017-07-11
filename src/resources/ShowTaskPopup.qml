@@ -85,19 +85,22 @@ Popup { id: item
 				Column {
 					anchors.fill: parent
 					Item {
-						height: parent.height - 200 - 80
+						height: parent.height / 2  - 50
 						width: parent.width
-						Text { id: taskTitle
-							text: item.title
+						TaskDescriptionView { id: tdview
+							boxHeight: parent.height
+							boxWidth: parent.width
+							boxColor: "#fff"
+							taskFontSize: 18
+							descriptionFontSize: 14
+							title: Dtt.taskTitle(Dtt.currentTask)
+							description: Dtt.taskDescription(Dtt.currentTask)
 							anchors.centerIn: parent
-							font.pixelSize: 20
-							elide: Text.ElideRight
-							width: implicitWidth > parent.width - 20 ? parent.width - 20 : implicitWidth
 						}
 					}
 					Item {
-						height: 200
-						width: 200
+						height: parent.height / 2 + 50
+						width: height
 						anchors.horizontalCenter: parent.horizontalCenter
 
 						Connections {
@@ -108,8 +111,8 @@ Popup { id: item
 						TaskProgress { id: taskProgress
 							anchors.centerIn: parent
 							progress: item.progress
-							height: parent.height - 20
-							width: parent.width - 20
+							height: 200
+							width: 200
 						}
 					}
 				}
