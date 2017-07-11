@@ -21,8 +21,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.1
 import QtQuick.Window 2.0
-import QtGraphicalEffects 1.0
-import QtCharts 2.0
 import api.dtt 1.0
 
 ApplicationWindow { id: root
@@ -72,7 +70,6 @@ ApplicationWindow { id: root
 				width: 200
 				onClicked: {
 					titleBar.activeTab = 0
-
 				}
 			}
 
@@ -90,364 +87,60 @@ ApplicationWindow { id: root
 		}
 	}
 
-
 	Item { id: taskViewGrid
 		anchors.left: parent.left
 		anchors.right: parent.right
 		anchors.top: titleBar.bottom
 		anchors.bottom: statusBar.top
 		property int cardWidth : 300
-		property int widthFactor : (cardWidth/100 - 3)*2
-		property int titleFontSize : 16 + widthFactor
-		property int descFontSize : 14 + widthFactor
-		property int dateFontSize : 12 + widthFactor
 		visible: titleBar.activeTab == 0
 
-		Item {
+		DashboardActionPanel {
 			anchors.top: parent.top
 			height: 80
 
-			Row {
-				height: parent.height - 40
-				width: parent.width - 40
-				anchors.centerIn: parent
-				spacing: 30
-				IPCButton {
-					height: parent.height
-					width: 150
-					text: qsTr("\uf067  Add Task")
-					radius: width / 2
-					shadow: false
-					onClicked: createTaskPopup.show()
-				}
-				IPCButton {
-					height: parent.height
-					width: 150
-					text: qsTr("\uf00e  Zoom In")
-					radius: width / 2
-					shadow: false
-					onClicked: {
-						if(taskViewGrid.cardWidth < 700)
-							taskViewGrid.cardWidth += 100
-					}
-				}
-				IPCButton {
-					height: parent.height
-					width: 150
-					text: qsTr("\uf010  Zoom Out")
-					radius: width / 2
-					shadow: false
-					onClicked: {
-						if(taskViewGrid.cardWidth > 300)
-							taskViewGrid.cardWidth -= 100
-					}
-				}
-				IPCButton {
-					property bool show: false
-					height: parent.height
-					width: 150
-					text: qsTr("\uf02e  Show Bookmarks")
-					radius: width / 2
-					shadow: false
-					active: show
-					onClicked: {
-						show = !show
-						if(show) {
-							list1.model = Dtt.bookmarkedTasks
-							list2.model = Dtt.bookmarkedTasks
-							list3.model = Dtt.bookmarkedTasks
-						}
-						else {
-							list1.model = Dtt.pendingTasks
-							list2.model = Dtt.pendingTasks
-							list3.model = Dtt.pendingTasks
-						}
-					}
-				}
+			onAddTaskClicked: {
+				createTaskPopup.show()
 			}
+			onZoomInClicked: {
+				if(taskViewGrid.cardWidth < 700)
+					taskViewGrid.cardWidth += 100
+			}
+			onZoomOutClicked: {
+				if(taskViewGrid.cardWidth > 300)
+					taskViewGrid.cardWidth -= 100
+			}
+			onShowBookmarks: {
+				 taskList.tasks = Dtt.bookmarkedTasks
+			}
+			onShowTasks: {
+				taskList.tasks = Dtt.pendingTasks
 
+			}
 		}
 
-		Flickable {
-			contentWidth: parent.cardWidth*3 + 40 + 40
-			clip: true
+		TaskList { id: taskList
 			width: parent.width
 			height: parent.height - 80
 			anchors.bottom: parent.bottom
-
-			ScrollBar.horizontal: ScrollBar {}
-
-			Row {
-				anchors.fill: parent
-				anchors.margins: spacing
-				spacing: 20
-
-				ListView { id: list1
-					property int unique: 0
-					width: taskViewGrid.cardWidth
-					height: parent.height
-					model: Dtt.pendingTasks
-					delegate: taskCard
-					onCurrentIndexChanged: currentIndex = count > 0 ? 0 : -1
-					ScrollBar.vertical: ScrollBar {}
-				}
-				ListView { id: list2
-					property int unique: 1
-					width: taskViewGrid.cardWidth
-					height: parent.height
-					model: Dtt.pendingTasks
-					delegate: taskCard
-					ScrollBar.vertical: ScrollBar {}
-				}
-				ListView { id: list3
-					property int unique: 2
-					width: taskViewGrid.cardWidth
-					height: parent.height
-					model: Dtt.pendingTasks
-					delegate: taskCard
-					ScrollBar.vertical: ScrollBar {}
-				}
-			}
+			cardWidth: parent.cardWidth
+			tasks: Dtt.pendingTasks
+			onTaskClicked: showTaskPopup.show()
 		}
-
 	}
 
-	Item { id: graph
+	ProgressGraph { id: graph
 		anchors.left: parent.left
 		anchors.right: parent.right
 		anchors.top: titleBar.bottom
 		anchors.bottom: statusBar.top
 		visible: titleBar.activeTab == 1
+	}	
 
-		ChartView { id: graphChart
-			title: "Last 7 Days"
-			anchors.fill: parent
-			antialiasing: true
+	CreateTaskPopup { id: createTaskPopup }
 
-			function createGraph()
-			{
-				removeAllSeries();
-				yAxis.max = Dtt.maxYValue
+	ShowTaskPopup { id: showTaskPopup }
 
-				createSeries(LineSeries,"Pending",xAxis,yAxis);
-				createSeries(LineSeries,"Completed",xAxis,yAxis);
-
-				series("Pending").color = "#aaa"
-				series("Pending").pointsVisible = true
-				series("Pending").append(1,Dtt.pending7Day[6])
-				series("Pending").append(2,Dtt.pending7Day[5])
-				series("Pending").append(3,Dtt.pending7Day[4])
-				series("Pending").append(4,Dtt.pending7Day[3])
-				series("Pending").append(5,Dtt.pending7Day[2])
-				series("Pending").append(6,Dtt.pending7Day[1])
-				series("Pending").append(7,Dtt.pending7Day[0])
-
-				series("Completed").color = "#27ae60"
-				series("Completed").pointsVisible = true
-				series("Completed").append(1,Dtt.completed7Day[6])
-				series("Completed").append(2,Dtt.completed7Day[5])
-				series("Completed").append(3,Dtt.completed7Day[4])
-				series("Completed").append(4,Dtt.completed7Day[3])
-				series("Completed").append(5,Dtt.completed7Day[2])
-				series("Completed").append(6,Dtt.completed7Day[1])
-				series("Completed").append(7,Dtt.completed7Day[0])
-
-			}
-
-			ValueAxis {
-				id: xAxis
-				min: 1
-				max: 7
-				tickCount: 7
-			}
-
-			ValueAxis {
-				id: yAxis
-				min: 0
-				max: Dtt.maxYValue
-				tickCount: (max % 10) == 0 ? 11 : 11
-			}
-
-			Connections{
-				target: Dtt
-				onUpdateGraph: graphChart.createGraph()
-			}
-
-			Component.onCompleted: createGraph()
-		}
-
-	}
-	
-	Component { id: taskCard
-		Item {
-			visible: parent.parent.unique === index%3
-			width: parent.width
-			height: !visible ? 0 : titleBlk.height + descBlk.height + scoreandtagBlk.height + createdonBlk.height + 40 + 20
-			Rectangle {
-				border.color: _T_status == 1 ? "#2980b9" : _T_progress == 100 ? "#27ae60" : "#ccc"
-				radius: 3
-				width: parent.width
-				height: parent.height - 20
-				anchors.top: parent.top
-
-				MouseArea {
-					anchors.fill: parent
-					cursorShape: Qt.PointingHandCursor
-					onClicked: {
-						Dtt.currentTask = _T_id
-						showTaskPopup.taskid = _T_id
-						showTaskPopup.status = _T_status
-						showTaskPopup.title = _T_title
-						showTaskPopup.progress = _T_progress
-						showTaskPopup.show()
-					}
-				}
-
-				Text {
-					text: qsTr("\uf02e")
-					font.pixelSize: 18 + taskViewGrid.widthFactor
-					color: _T_bookmarked ? "#f39c12" : "#777"
-					anchors.top: parent.top
-					anchors.left: parent.left
-					anchors.leftMargin: 10
-					anchors.topMargin: -5
-					MouseArea {
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-						onClicked: Dtt.toggleBookmark(_T_id)
-					}
-				}
-
-				Item { id: titleBlk
-					width: parent.width - 40
-					height: title.text != "" ? title.implicitHeight + 10 : 0
-					anchors.top: parent.top
-					anchors.topMargin: 10
-					Text { id: title
-						text: _T_title
-						width: parent.width - 20
-						font.pixelSize: taskViewGrid.titleFontSize
-						anchors.centerIn: parent
-						wrapMode: Text.WordWrap
-					}
-				}
-				Item { id: menu
-					property bool open: false
-					anchors.top: parent.top
-					visible: _T_status != 2
-					anchors.left: titleBlk.right
-					height: 40
-					width: 40
-					Text {
-						font.pixelSize: taskViewGrid.titleFontSize
-						text: qsTr("\uf0c9")
-						anchors.centerIn: parent
-					}
-					MouseArea {
-						anchors.fill: parent
-						cursorShape: Qt.PointingHandCursor
-						onClicked: menu.open = !menu.open
-					}
-				}
-				Item { id: createdonBlk
-					width: parent.width
-					height: createdon.implicitHeight + 10
-					anchors.top: titleBlk.bottom
-					Text { id: createdon
-						text: _T_status == 2 ? qsTr(_T_createdon + " - " + _T_updatedon) : _T_status == 1 ? _T_updatedon : _T_createdon
-						width: parent.width - 20
-						font.pixelSize: taskViewGrid.dateFontSize
-						font.weight: Font.Light
-						color: "#555"
-						anchors.centerIn: parent
-						wrapMode: Text.WordWrap
-					}
-				}
-				Item { id: descBlk
-					width: parent.width
-					height: desc.text != "" ? desc.implicitHeight + 10 : 0
-					anchors.top: createdonBlk.bottom
-					anchors.topMargin: 10
-					Text { id: desc
-						text: _T_description
-						width: parent.width - 20
-						font.pixelSize: taskViewGrid.descFontSize
-						font.weight: Font.Light
-						anchors.centerIn: parent
-						wrapMode: Text.WordWrap
-					}
-				}
-				Item { id: scoreandtagBlk
-					width: parent.width
-					height: tagBlk.height
-					anchors.top: descBlk.bottom
-					anchors.topMargin: 10
-					Rectangle { id: tagBlk
-						color: "#e7e7e7"
-						width: tag.text != "" ? tag.implicitWidth + 20 : 0
-						height: width == 0 ? 0 : 20
-						anchors.left: parent.left
-						anchors.leftMargin: 10
-						Text { id: tag
-							text: _T_tag != "" ? qsTr("\uf02b  ") + _T_tag : ""
-							width: parent.width - 20
-							font.pixelSize: taskViewGrid.descFontSize
-							anchors.centerIn: parent
-							font.weight: Font.Light
-							wrapMode: Text.WordWrap
-						}
-					}
-				}
-				Item {
-					visible: menu.open
-					width: 100 + taskViewGrid.widthFactor*20
-					height: 80 + taskViewGrid.widthFactor*10
-					anchors.right: parent.right
-					anchors.top: menu.bottom
-					Item { id: menuBox
-						anchors.fill: parent
-						IPCButton {
-							icon: qsTr("\uf061")
-							text: _T_status == 1 ? qsTr("REOPEN") : qsTr("CLOSE")
-							textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
-							iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
-							color: "#f6f6f6"
-							textColor: "#555"
-							active: _T_status != 1 ? (( _T_subtaskcount > 0 && _T_progress != 100) ? true : false) : false
-							activeColor: "#fafafa"
-							activeTextColor: "#ccc"
-							width: parent.width
-							height: parent.height / 2
-							radius: 0
-							shadow: false
-							anchors.top: parent.top
-							onClicked:{
-								if(!active)
-									Dtt.toggleComplete(_T_id)
-							}
-						}
-						IPCButton {
-							icon: qsTr("\uf1f8")
-							text: qsTr("DELETE")
-							textFont: Qt.font({"pixelSize":taskViewGrid.descFontSize})
-							iconFont: Qt.font({"pixelSize":taskViewGrid.titleFontSize})
-							color: "#f6f6f6"
-							textColor: "#555"
-							width: parent.width
-							height: parent.height / 2
-							radius: 0
-							shadow: false
-							anchors.bottom: parent.bottom
-							onClicked:{
-								Dtt.deleteTask(_T_id)
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-	
 	StatusBar { id: statusBar
 		width:parent.width
 		height: 24
@@ -457,9 +150,4 @@ ApplicationWindow { id: root
 			root.height += sizeY
 		}
 	}
-
-	CreateTaskPopup { id: createTaskPopup }
-
-	ShowTaskPopup { id: showTaskPopup }
-
 }

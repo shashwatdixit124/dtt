@@ -35,12 +35,18 @@ Popup { id: item
 	property int progress: 0
 	property int status: 2
 
+	function init()
+	{
+		taskid = Dtt.currentTask
+		title = Dtt.taskTitle(taskid)
+		progress = Dtt.taskProgress(taskid)
+		status = Dtt.taskStatus(taskid)
+	}
+
 	function show()
 	{
-		subTaskDetail.visible = false
-		subTaskDetail.id = -1
-		subTaskDetail.color = "#f5f5f5"
-		subTaskDetail.textcolor = "transparent"
+		init()
+		subTaskDetail.init()
 		actionBlk.btnshow = true
 		open()
 	}
@@ -130,6 +136,14 @@ Popup { id: item
 					property int status: 1
 					property string createdon
 					property string updatedon
+
+					function init()
+					{
+						subTaskDetail.visible = false
+						subTaskDetail.id = -1
+						subTaskDetail.color = "#f5f5f5"
+						subTaskDetail.textcolor = "transparent"
+					}
 
 					IPCButton {
 						icon: qsTr("\uf00d")
@@ -252,7 +266,7 @@ Popup { id: item
 										anchors.fill: parent
 										cursorShape: Qt.PointingHandCursor
 										onClicked: {
-											subTaskDetail.id = _ST_id											
+											subTaskDetail.id = _ST_id
 											subTaskDetail.textcolor = statuscolor.textcolor
 											subTaskDetail.color = statuscolor.color
 											subTaskDetail.desc = _ST_description
@@ -273,8 +287,7 @@ Popup { id: item
 									color: "#fff"
 									textColor: "#555"
 									onClicked: {
-										subTaskDetail.id = -1
-										subTaskDetail.visible = false
+										subTaskDetail.init()
 										Dtt.stepSubTask(_ST_id)
 									}
 								}
@@ -288,8 +301,7 @@ Popup { id: item
 									color: "#fff"
 									textColor: "#555"
 									onClicked: {
-										subTaskDetail.id = -1
-										subTaskDetail.visible = false
+										subTaskDetail.init()
 										Dtt.deleteSubTask(_ST_id)
 									}
 								}

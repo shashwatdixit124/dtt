@@ -1,13 +1,17 @@
 <RCC>
     <qresource prefix="/">
-        <file>resources/Main.qml</file>
         <file>resources/AppControls.qml</file>
         <file>resources/CreateTaskPopup.qml</file>
-        <file>resources/ShowTaskPopup.qml</file>
-        <file>resources/TaskProgress.qml</file>
-        <file>resources/TaskDescriptionView.qml</file>
+        <file>resources/DashboardActionPanel.qml</file>
         <file>resources/IPCButton.qml</file>
+        <file>resources/Main.qml</file>
+        <file>resources/ProgressGraph.qml</file>
+        <file>resources/ShowTaskPopup.qml</file>
         <file>resources/StatusBar.qml</file>
+        <file>resources/TaskCard.qml</file>
+        <file>resources/TaskDescriptionView.qml</file>
+        <file>resources/TaskList.qml</file>
+        <file>resources/TaskProgress.qml</file>
         <file>resources/fontawesome-webfont.ttf</file>
         <file>resources/triangle-32.png</file>
     </qresource>
