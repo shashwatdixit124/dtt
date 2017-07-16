@@ -66,8 +66,8 @@ void SubTaskList::add(SubTask *st)
 	if(st->status() == SubTask::INVALID)
 		return;
 
-	beginInsertRows(QModelIndex(), 0 , 0);
-	m_subTasks.push_front(st);
+	beginInsertRows(QModelIndex(), rowCount() , rowCount());
+	m_subTasks.push_back(st);
 	endInsertRows();
 }
 

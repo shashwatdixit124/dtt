@@ -227,83 +227,90 @@ Popup { id: item
 						anchors.rightMargin: 20
 						delegate: subTaskDelegate
 						spacing: 10
-						ScrollBar.horizontal: ScrollBar{}
+						currentIndex: count-1
+						ScrollBar.vertical: ScrollBar{
+							anchors.left: parent.right
+							anchors.leftMargin: 5
+							active: true
+							onActiveChanged: active = true
+						}
 
 						Connections {
 							target: Dtt
 							onCurrentTaskChanged: listView.model = Dtt.subTasks
 						}
-						Component { id: subTaskDelegate
-							Row {
-								height: 40
-								width: parent.width
+					}
+
+					Component { id: subTaskDelegate
+						Row {
+							height: 40
+							width: parent.width
+							clip: true
+							Item {
+								height: 20
+								anchors.verticalCenter: parent.verticalCenter
+								width: 10
 								clip: true
-								Item {
-									height: 20
-									anchors.verticalCenter: parent.verticalCenter
-									width: 10
-									clip: true
-									Rectangle { id: statuscolor
-										height: parent.height
-										width: height
-										radius: width/2
-										anchors.right: parent.right
-										property string textcolor: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#555" : _ST_status == 0 ? "#fff" : "#f9f9f9" : "transparent"
-										color: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#f5f5f5" : _ST_status == 0 ? "#333" : "#27ae60" : "transparent"
-									}
-								}
-								Item {
+								Rectangle { id: statuscolor
 									height: parent.height
-									width: item.status == 1 ? parent.width - 5 : _ST_status == 2 ? parent.width - 45 : parent.width - 85
-									Text {
-										font.pixelSize: 14
-										width: parent.width - 20
-										elide: Text.ElideMiddle
-										anchors.centerIn: parent
-										text: _ST_description
-									}
-									MouseArea {
-										anchors.fill: parent
-										cursorShape: Qt.PointingHandCursor
-										onClicked: {
-											subTaskDetail.id = _ST_id
-											subTaskDetail.textcolor = statuscolor.textcolor
-											subTaskDetail.color = statuscolor.color
-											subTaskDetail.desc = _ST_description
-											subTaskDetail.status = _ST_status
-											subTaskDetail.createdon = _ST_createdon
-											subTaskDetail.updatedon = _ST_updatedon
-											subTaskDetail.visible = true
-										}
+									width: height
+									radius: width/2
+									anchors.right: parent.right
+									property string textcolor: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#555" : _ST_status == 0 ? "#fff" : "#f9f9f9" : "transparent"
+									color: subTaskDetail.id === _ST_id ? _ST_status == 1 ? "#f5f5f5" : _ST_status == 0 ? "#333" : "#27ae60" : "transparent"
+								}
+							}
+							Item {
+								height: parent.height
+								width: item.status == 1 ? parent.width - 5 : _ST_status == 2 ? parent.width - 45 : parent.width - 85
+								Text {
+									font.pixelSize: 14
+									width: parent.width - 20
+									elide: Text.ElideMiddle
+									anchors.centerIn: parent
+									text: _ST_description
+								}
+								MouseArea {
+									anchors.fill: parent
+									cursorShape: Qt.PointingHandCursor
+									onClicked: {
+										subTaskDetail.id = _ST_id
+										subTaskDetail.textcolor = statuscolor.textcolor
+										subTaskDetail.color = statuscolor.color
+										subTaskDetail.desc = _ST_description
+										subTaskDetail.status = _ST_status
+										subTaskDetail.createdon = _ST_createdon
+										subTaskDetail.updatedon = _ST_updatedon
+										subTaskDetail.visible = true
 									}
 								}
-								IPCButton {
-									visible: _ST_status != 2 && item.status != 1
-									height: visible ? parent.height : 0
-									width: 40
-									radius: 0
-									shadow: false
-									icon: qsTr("\uf00c")
-									color: "#fff"
-									textColor: "#555"
-									onClicked: {
-										subTaskDetail.init()
-										Dtt.stepSubTask(_ST_id)
-									}
+							}
+							IPCButton {
+								visible: _ST_status != 2 && item.status != 1
+								height: visible ? parent.height : 0
+								width: 40
+								radius: 0
+								shadow: false
+								icon: qsTr("\uf00c")
+								color: "#fff"
+								textColor: "#555"
+								onClicked: {
+									subTaskDetail.init()
+									Dtt.stepSubTask(_ST_id)
 								}
-								IPCButton {
-									visible: item.status != 1
-									height: visible ? parent.height : 0
-									width: 40
-									radius: 0
-									shadow: false
-									icon: qsTr("\uf1f8")
-									color: "#fff"
-									textColor: "#555"
-									onClicked: {
-										subTaskDetail.init()
-										Dtt.deleteSubTask(_ST_id)
-									}
+							}
+							IPCButton {
+								visible: item.status != 1
+								height: visible ? parent.height : 0
+								width: 40
+								radius: 0
+								shadow: false
+								icon: qsTr("\uf1f8")
+								color: "#fff"
+								textColor: "#555"
+								onClicked: {
+									subTaskDetail.init()
+									Dtt.deleteSubTask(_ST_id)
 								}
 							}
 						}
