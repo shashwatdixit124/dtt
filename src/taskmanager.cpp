@@ -331,9 +331,19 @@ void TaskManager::deleteSubTask(quint16 id)
 	if(!s)
 		return;
 
+	if(s->id() != id)
+		return;
+
 	Task *t = m_tasks[s->parentId()];
 	if(!t)
 		return;
+
+	if(t->id() != m_currTask)
+	{
+		qDebug() << "ERROR : cannot delete SubTask (" << id << ", " << s->description() << ") \n"
+				 << "SubTask doesn't belong to current task" ;
+		return;
+	}
 
 	if(!m_db->deleteSubTask(s))
 		return;

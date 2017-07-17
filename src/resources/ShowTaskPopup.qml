@@ -340,7 +340,7 @@ Popup { id: item
 						onClicked: {
 							actionBlk.btnshow = false
 							subTaskInput.text = ""
-							subTaskInput.focus = true
+							subTaskInput.forceActiveFocus()
 						}
 					}
 
@@ -360,6 +360,12 @@ Popup { id: item
 								color: parent.activeFocus ? "transparent" : "#f6f6f6"
 								border.color: item.pallete
 								border.width: parent.activeFocus ? 2 : 0
+							}
+							onAccepted: {
+								if(subTaskInput.text == "")
+									return;
+								Dtt.addSubTask(item.taskid,subTaskInput.text)
+								actionBlk.btnshow = true
 							}
 						}
 						IPCButton {
