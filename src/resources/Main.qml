@@ -126,6 +126,7 @@ ApplicationWindow { id: root
 			cardWidth: parent.cardWidth
 			tasks: Dtt.pendingTasks
 			onTaskClicked: showTaskPopup.show()
+			columns: (root.width)/(cardWidth+20)
 		}
 	}
 

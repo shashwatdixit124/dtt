@@ -27,20 +27,28 @@ Item { id: item
 
 	property int cardWidth: 300
 	property int widthFactor : (cardWidth/100 - 3)*2
+	property alias columns: listRow.columns
 
 	property alias tasks: list1.model
 
+
 	Flickable {
-		contentWidth: parent.cardWidth*3 + 40 + 40
+		contentWidth: parent.cardWidth*parent.columns + (parent.columns)*20 + 40
 		clip: true
 		anchors.fill: parent
 
 		ScrollBar.horizontal: ScrollBar {}
 
-		Row {
+		Row { id: listRow
 			anchors.fill: parent
 			anchors.margins: spacing
 			spacing: 20
+			signal deletePrevoiousLists
+			property int columns: 1
+			onColumnsChanged: {
+				deletePrevoiousLists();
+				createNewLists();
+			}
 
 			ListView { id: list1
 				property int unique: 0
@@ -51,27 +59,29 @@ Item { id: item
 				onCurrentIndexChanged: currentIndex = count > 0 ? 0 : -1
 				ScrollBar.vertical: ScrollBar {}
 			}
-			ListView { id: list2
-				property int unique: 1
-				width: item.cardWidth
-				height: parent.height
-				model: list1.model
-				delegate: taskCard
-				ScrollBar.vertical: ScrollBar {}
-			}
-			ListView { id: list3
-				property int unique: 2
-				width: item.cardWidth
-				height: parent.height
-				model: list1.model
-				delegate: taskCard
-				ScrollBar.vertical: ScrollBar {}
+
+			function createNewLists() {
+				for(var i = 1; i < listRow.columns ; i++) {
+					var object = Qt.createQmlObject(
+								"import QtQuick 2.7;"+
+								"import QtQuick.Controls 2.1;"+
+								"ListView {"+
+								"	property int unique: "+i+" ;"+
+								"	width: item.cardWidth ;"+
+								"	height: parent.height ;"+
+								"	model: list1.model ;"+
+								"	delegate: taskCard ;"+
+								"	ScrollBar.vertical: ScrollBar {} "+
+								"}"
+								,listRow);
+					listRow.deletePrevoiousLists.connect(object.destroy);
+				}
 			}
 		}
 	}
 	Component { id: taskCard
 		TaskCard {
-			visible: parent.parent.unique === index%3
+			visible: parent.parent.unique === index%item.columns
 			widthFactor: item.widthFactor
 
 			taskid: _T_id
