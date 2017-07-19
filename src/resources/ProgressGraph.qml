@@ -26,44 +26,31 @@ import api.dtt 1.0
 Item { id: graph
 
 	ChartView { id: graphChart
-		title: "Last 7 Days"
 		anchors.fill: parent
 		antialiasing: true
 
 		function createGraph()
 		{
-			removeAllSeries();
-			yAxis.max = Dtt.maxYValue
+			yAxis.max = Dtt.maxYValue			
+			series("Pending").removePoints(0,7);
+			series("Completed").removePoints(0,7);
 
-			createSeries(LineSeries,"Pending",xAxis,yAxis);
-			createSeries(LineSeries,"Completed",xAxis,yAxis);
+			var curdate = toms(new Date());
+			var day = 24*60*60*1000;
 
-			series("Pending").color = "#aaa"
-			series("Pending").pointsVisible = true
-			series("Pending").append(1,Dtt.pending7Day[6])
-			series("Pending").append(2,Dtt.pending7Day[5])
-			series("Pending").append(3,Dtt.pending7Day[4])
-			series("Pending").append(4,Dtt.pending7Day[3])
-			series("Pending").append(5,Dtt.pending7Day[2])
-			series("Pending").append(6,Dtt.pending7Day[1])
-			series("Pending").append(7,Dtt.pending7Day[0])
-
-			series("Completed").color = "#27ae60"
-			series("Completed").pointsVisible = true
-			series("Completed").append(1,Dtt.completed7Day[6])
-			series("Completed").append(2,Dtt.completed7Day[5])
-			series("Completed").append(3,Dtt.completed7Day[4])
-			series("Completed").append(4,Dtt.completed7Day[3])
-			series("Completed").append(5,Dtt.completed7Day[2])
-			series("Completed").append(6,Dtt.completed7Day[1])
-			series("Completed").append(7,Dtt.completed7Day[0])
-
+			for( var i=6;i>=0;i--)
+			{
+				var x = curdate-i*day;
+				var pending = Dtt.pending7Day[i];
+				var completed = Dtt.completed7Day[i];
+				series("Pending").insert(6-i,x,pending);
+				series("Completed").insert(6-i,x,completed);
+			}
 		}
 
-		ValueAxis {
-			id: xAxis
-			min: 1
-			max: 7
+		DateTimeAxis {
+			id:xAxis
+			format: "dd MMM"
 			tickCount: 7
 		}
 
@@ -71,14 +58,48 @@ Item { id: graph
 			id: yAxis
 			min: 0
 			max: Dtt.maxYValue
-			tickCount: (max % 10) == 0 ? 11 : 11
+			tickCount: 11
+		}
+
+		LineSeries {
+			name: "Pending"
+			axisX: xAxis
+			axisY: yAxis
+			color: "#aaa"
+			width: 2
+
+			XYPoint { x: toms(new Date())-24*60*60*1000*6; y:Dtt.pending7Day[6] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*5; y:Dtt.pending7Day[5] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*4; y:Dtt.pending7Day[4] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*3; y:Dtt.pending7Day[3] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*2; y:Dtt.pending7Day[2] }
+			XYPoint { x: toms(new Date())-24*60*60*1000; y:Dtt.pending7Day[1] }
+			XYPoint { x: toms(new Date()); y:Dtt.pending7Day[0] }
+		}
+
+		LineSeries {
+			name: "Completed"
+			axisX: xAxis
+			axisY: yAxis
+			color: "#27ae60"
+			width: 2
+
+			XYPoint { x: toms(new Date())-24*60*60*1000*6; y:Dtt.completed7Day[6] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*5; y:Dtt.completed7Day[5] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*4; y:Dtt.completed7Day[4] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*3; y:Dtt.completed7Day[3] }
+			XYPoint { x: toms(new Date())-24*60*60*1000*2; y:Dtt.completed7Day[2] }
+			XYPoint { x: toms(new Date())-24*60*60*1000; y:Dtt.completed7Day[1] }
+			XYPoint { x: toms(new Date()); y:Dtt.completed7Day[0] }
 		}
 
 		Connections{
 			target: Dtt
 			onUpdateGraph: graphChart.createGraph()
 		}
-
-		Component.onCompleted: createGraph()
+	}
+	function toms(date) {
+		var msecs = date.getTime();
+		return msecs;
 	}
 }
