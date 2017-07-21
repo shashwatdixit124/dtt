@@ -105,6 +105,7 @@ private:
 	QList<SubTask*> m_deletedSubTasks;
 	quint16 m_maxTaskId;
 	quint16 m_maxSubTaskId;
+	bool m_cleaningDb;
 
 	int m_maxYValue;
 	QList<int> m_pending7Day;

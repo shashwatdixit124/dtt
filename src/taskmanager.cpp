@@ -49,6 +49,17 @@ TaskManager::TaskManager(QObject* parent) : QObject(parent) , m_db(new DBManager
 		m_tasks[s->parentId()]->addSubTask(s);
 	}
 
+	m_cleaningDb = true;
+	QDate today = QDate::currentDate();
+	foreach (Task *t, m_tasks.values()) {
+		if(t->status() == Task::COMPLETED) {
+			int j = t->updatedOn().daysTo(today);
+			if(j >= 7)
+				deleteTask(t->id());
+		}
+	}
+	m_cleaningDb = false;
+
 	m_pending = new PendingTasks(this);
 	m_bookmarked = new BookmarkedTasks(this);
 
@@ -211,7 +222,8 @@ void TaskManager::addTask(QString title, QString desc, QString tag)
 
 	m_tasks.insert(t->id(),t);
 	emit taskAdded(t);
-	load7day();
+	if(!m_cleaningDb)
+		load7day();
 }
 
 void TaskManager::toggleComplete(quint16 id)
@@ -229,7 +241,8 @@ void TaskManager::toggleComplete(quint16 id)
 	else if(t->status() == Task::PENDING)
 		t->setStatus(Task::COMPLETED);
 	emit taskCompleteToggled(t);
-	load7day();
+	if(!m_cleaningDb)
+		load7day();
 }
 
 void TaskManager::toggleBookmark(quint16 id)
@@ -274,7 +287,8 @@ void  TaskManager::deleteTask(quint16 id)
 
 	m_deletedTasks.push_back(t);
 	emit taskDeleted(t);
-	load7day();
+	if(!m_cleaningDb)
+		load7day();
 }
 
 void TaskManager::addSubTask(quint16 taskid, QString description)
@@ -301,7 +315,8 @@ void TaskManager::addSubTask(quint16 taskid, QString description)
 	m_subTasks.insert(s->id(),s);
 	emit taskCompleteToggled(t);
 	emit subTaskListUpdated();
-	load7day();
+	if(!m_cleaningDb)
+		load7day();
 }
 
 void TaskManager::stepSubTask(quint16 id)
@@ -322,7 +337,8 @@ void TaskManager::stepSubTask(quint16 id)
 	t->stepSubTask(s);
 	emit taskCompleteToggled(t);
 	emit subTaskListUpdated();
-	load7day();
+	if(!m_cleaningDb)
+		load7day();
 }
 
 void TaskManager::deleteSubTask(quint16 id)
@@ -338,7 +354,7 @@ void TaskManager::deleteSubTask(quint16 id)
 	if(!t)
 		return;
 
-	if(t->id() != m_currTask)
+	if(t->id() != m_currTask && !m_cleaningDb)
 	{
 		qDebug() << "ERROR : cannot delete SubTask (" << id << ", " << s->description() << ") \n"
 				 << "SubTask doesn't belong to current task" ;
@@ -363,7 +379,8 @@ void TaskManager::deleteSubTask(quint16 id)
 	m_deletedSubTasks.push_back(s);
 	emit taskCompleteToggled(t);
 	emit subTaskListUpdated();
-	load7day();
+	if(!m_cleaningDb)
+		load7day();
 }
 
 void TaskManager::load7day()
@@ -375,14 +392,6 @@ void TaskManager::load7day()
 	{
 		m_pending7Day[i] = 0;
 		m_completed7Day[i] = 0;
-	}
-
-	foreach (Task *t, allTasks) {
-		if(t->status() == Task::COMPLETED) {
-			int j = t->updatedOn().daysTo(today);
-			if(j >= 7)
-				deleteTask(t->id());
-		}
 	}
 
 	foreach (Task *t, allTasks) {
