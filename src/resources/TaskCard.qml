@@ -103,7 +103,10 @@ Item { id: item
 			MouseArea {
 				anchors.fill: parent
 				cursorShape: Qt.PointingHandCursor
-				onClicked: menu.open = !menu.open
+				onClicked:{
+					Dtt.currentTask = item.taskid
+					menu.open = !menu.open
+				}
 			}
 		}
 		Item { id: createdonBlk
