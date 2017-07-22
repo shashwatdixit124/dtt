@@ -59,11 +59,11 @@
 ![PROGRESS](images/progressgraph.png)
 
 Axis
-* X : 7 days , left most being the oldest and right most denotes today
+* X : days
 * Y : no of subtasks
 
 Lines
-* Pending line shows total subtasks created on a particular day
-* Completed shows total total subtasks completed on a particular day
+* Pending line shows total subtasks created on a day
+* Completed shows total total subtasks completed on a day
 
 > if a task does not have any subtasks in it, then that task will be considered as one subtask for calculating progress graph
