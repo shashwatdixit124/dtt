@@ -56,9 +56,9 @@ Item { id: root
 
 			Text { id: minimizeBtn
 				font.pixelSize: 12
-				font.family: awesome.name
+                font.family: awesome.name
 				color: root.theme
-				text: "\uf068"
+                text: "\uf068"
 				anchors.centerIn: parent
 			}
 

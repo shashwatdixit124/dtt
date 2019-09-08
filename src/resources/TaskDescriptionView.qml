@@ -43,6 +43,7 @@ Rectangle { id: box
 			height: title.implicitHeight + 10
 			width: widthOF ? parent.width : shouldBeWidth
 			Text { id: title
+                font.family: fontawesome.name
 				font.pixelSize: box.taskFontSize
 				text: box.title
 				anchors.horizontalCenter: parent.horizontalCenter
@@ -80,6 +81,7 @@ Rectangle { id: box
 
 					Text { id: description
 						anchors.fill: parent
+                        font.family: fontawesome.name
 						font.pixelSize: box.descriptionFontSize
 						text: box.description
 						width: parent.width

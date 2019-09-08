@@ -30,6 +30,8 @@ Item {
 	signal showTasks
 	signal showBookmarks
 
+    FontLoader { id: fontawesome; source: "qrc:/resources/fontawesome-webfont.ttf" }
+
 	Row {
 		height: parent.height - 40
 		width: parent.width - 40

@@ -176,8 +176,9 @@ Popup { id: item
 								color: subTaskDetail.color
 								font.pixelSize: 12
 								text: subTaskDetail.status == 1 ? subTaskDetail.createdon : subTaskDetail.createdon + " - " + subTaskDetail.updatedon
-								anchors.centerIn: parent
-								width: parent.width - 20
+                                font.family: fontawesome.name
+                                anchors.centerIn: parent
+                                width: parent.width - 20
 							}
 						}
 						Item {
@@ -187,6 +188,7 @@ Popup { id: item
 								color: subTaskDetail.textcolor
 								font.pixelSize: 16
 								text: subTaskDetail.desc
+                                font.family: fontawesome.name
 								width: parent.width - 20
 								height: parent.height - 20
 								anchors.centerIn: parent
@@ -201,6 +203,7 @@ Popup { id: item
 								color: subTaskDetail.textcolor
 								font.pixelSize: 12
 								text: subTaskDetail.status == 1 ? "Status : PENDING" : "Status : COMPLETED"
+                                font.family: fontawesome.name
 								anchors.centerIn: parent
 								width: parent.width - 20
 							}
@@ -264,6 +267,7 @@ Popup { id: item
 								height: parent.height
 								width: item.status == 1 ? parent.width - 5 : _ST_status == 2 ? parent.width - 45 : parent.width - 85
 								Text {
+                                    font.family: fontawesome.name
 									font.pixelSize: 14
 									width: parent.width - 20
 									elide: Text.ElideMiddle
@@ -319,6 +323,7 @@ Popup { id: item
 					Text {
 						visible: listView.count === 0
 						text: qsTr("No SubTasks")
+                        font.family: fontawesome.name
 						font.pixelSize: 30
 						font.weight: Font.Light
 						color: "#bbb"

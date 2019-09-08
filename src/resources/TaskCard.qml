@@ -68,6 +68,7 @@ Item { id: item
 			anchors.left: parent.left
 			anchors.leftMargin: 10
 			anchors.topMargin: -5
+            font.family: fontawesome.name
 			MouseArea {
 				anchors.fill: parent
 				cursorShape: Qt.PointingHandCursor
@@ -86,6 +87,7 @@ Item { id: item
 				font.pixelSize: item.titleFontSize
 				anchors.centerIn: parent
 				wrapMode: Text.WordWrap
+                font.family: fontawesome.name
 			}
 		}
 		Item { id: menu
@@ -96,6 +98,7 @@ Item { id: item
 			height: 40
 			width: 40
 			Text {
+                font.family: fontawesome.name
 				font.pixelSize: item.titleFontSize
 				text: qsTr("\uf0c9")
 				anchors.centerIn: parent
@@ -121,6 +124,7 @@ Item { id: item
 				color: "#555"
 				anchors.centerIn: parent
 				wrapMode: Text.WordWrap
+                font.family: fontawesome.name
 			}
 		}
 		Item { id: descBlk
@@ -131,10 +135,12 @@ Item { id: item
 			Text { id: desc
 				text: item.description
 				width: parent.width - 20
+                font.family: fontawesome.name
 				font.pixelSize: item.descFontSize
 				font.weight: Font.Light
 				anchors.centerIn: parent
 				wrapMode: Text.WordWrap
+                color: "#777"
 			}
 		}
 		Item { id: scoreandtagBlk
@@ -151,6 +157,7 @@ Item { id: item
 				Text { id: tag
 					text: item.tag != "" ? qsTr("\uf02b  ") + item.tag : ""
 					width: parent.width - 20
+                    font.family: fontawesome.name
 					font.pixelSize: item.descFontSize
 					anchors.centerIn: parent
 					font.weight: Font.Light
@@ -170,7 +177,7 @@ Item { id: item
 					icon: qsTr("\uf061")
 					text: item.status == 1 ? qsTr("REOPEN") : qsTr("CLOSE")
 					textFont: Qt.font({"pixelSize":item.descFontSize})
-					iconFont: Qt.font({"pixelSize":item.titleFontSize})
+                    iconFont: Qt.font({"pixelSize":item.titleFontSize, "family": fontawesome.name})
 					color: "#f6f6f6"
 					textColor: "#555"
 					active: item.status != 1 ? (( item.subtaskcount > 0 && item.progress != 100) ? true : false) : false
@@ -190,7 +197,7 @@ Item { id: item
 					icon: qsTr("\uf1f8")
 					text: qsTr("DELETE")
 					textFont: Qt.font({"pixelSize":item.descFontSize})
-					iconFont: Qt.font({"pixelSize":item.titleFontSize})
+                    iconFont: Qt.font({"pixelSize":item.titleFontSize, "family": fontawesome.name})
 					color: "#f6f6f6"
 					textColor: "#555"
 					width: parent.width

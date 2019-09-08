@@ -46,6 +46,8 @@ Item { id: btnRoot
 	height: 40
 	width: content.width <  height ? height : content.width + 20
 
+    FontLoader { id: fontawesome; source: "qrc:/resources/fontawesome-webfont.ttf" }
+
 	Rectangle { id: btnBack
 		anchors.fill: parent
 		color: btnRoot.active ? btnRoot.activeColor : "#2980b9"
@@ -59,7 +61,8 @@ Item { id: btnRoot
 			Item { id: iconBlk
 				width: btnIcon.implicitWidth > 0 ? 30 : 0
 				height: parent.height
-				Text { id: btnIcon
+                Text { id: btnIcon
+                    font.family: fontawesome.name
 					anchors.centerIn: parent
 					color: active ? btnRoot.activeTextColor : btnRoot.textColor
 				}
@@ -67,8 +70,9 @@ Item { id: btnRoot
 			Item { id: textBlk
 				width: btnText.implicitWidth
 				height: parent.height
-				Text { id: btnText
+                Text { id: btnText
 					font.weight: Font.Bold
+                    font.family: fontawesome.name
 					anchors.verticalCenter: parent.verticalCenter
 					color: active ? btnRoot.activeTextColor : btnRoot.textColor
 				}
