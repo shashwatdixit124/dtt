@@ -400,12 +400,19 @@ void TaskManager::load7day()
 			foreach (SubTask* s, subTasks) {
 				int i = s->createdOn().daysTo(today);
 				int j = s->updatedOn().daysTo(today);
-				if(i < 7)
-				{
-					m_pending7Day[i] += 1;
-					if(m_pending7Day[i] > m_maxYValue)
-						m_maxYValue = m_pending7Day[i];
-				}
+
+                // max graph calculation for 7 days (0-6)
+                i = i > 6 ? 6 : i;
+
+                j = s->status() == SubTask::COMPLETED ? j : -1;
+
+                // days difference in created and updated date of subtask
+                for (int k = i; k > j; k--) {
+                    m_pending7Day[k] += 1;
+                    if(m_pending7Day[k] > m_maxYValue)
+                        m_maxYValue = m_pending7Day[k];
+                }
+
 				if(j < 7)
 				{
 					if(s->status() == SubTask::COMPLETED) {
@@ -419,12 +426,19 @@ void TaskManager::load7day()
 		else {
 			int i = t->createdOn().daysTo(today);
 			int j = t->updatedOn().daysTo(today);
-			if(i < 7)
-			{
-				m_pending7Day[i] += 1;
-				if(m_pending7Day[i] > m_maxYValue)
-					m_maxYValue = m_pending7Day[i];
-			}
+
+            // max graph calculation for 7 days (0-6)
+            i = i > 6 ? 6 : i;
+
+            j = t->status() == Task::COMPLETED ? j : -1;
+
+            // days difference in created and updated date of task
+            for (int k = i; k > j; k--) {
+                m_pending7Day[k] += 1;
+                if(m_pending7Day[k] > m_maxYValue)
+                    m_maxYValue = m_pending7Day[k];
+            }
+
 			if(j < 7)
 			{
 				if(t->status() == Task::COMPLETED) {
